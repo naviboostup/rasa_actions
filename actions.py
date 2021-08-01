@@ -1,103 +1,19 @@
 from typing import Any, Text, Dict, List
 
+import requests
 from rasa_sdk import Action, Tracker, FormValidationAction
-from rasa_sdk.events import EventType, FollowupAction, AllSlotsReset, Restarted, UserUtteranceReverted
+from rasa_sdk.events import EventType, FollowupAction, AllSlotsReset, Restarted, UserUtteranceReverted, SlotSet
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 
 from . import private_college, public_college, omandisable, abroad_college
+from .direct_country import institute
 from .local_schools import *
+from .phone_otp import otp_validate
 from .school_code import *
 from .utils import convert_number
 
 senders_maintain = {}
-
-
-class ActionHelloWorld(Action):
-
-    def name(self) -> Text:
-        return "action_submit_scholarship_availability_form"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-
-        graduate = tracker.get_slot('graduate')
-        print("graduate Slot = ", graduate)
-        if graduate is not None:
-            if graduate is "ug":
-                dispatcher.utter_message(
-                    text="These are colleges and universities"
-                )
-                dispatcher.utter_message(
-                    text="National University of Science and Technology\nASharqiyah University\nMuscat University"
-                )
-            elif graduate is "g":
-                dispatcher.utter_message(
-                    text="These are colleges and universities"
-                )
-                dispatcher.utter_message(
-                    text="Global College of Engineering & Technology\nAl Musanna College\nOman Tourism College"
-                )
-            else:
-                dispatcher.utter_message(
-                    text="These are colleges and universities"
-                )
-                dispatcher.utter_message(
-                    text="Global College of Engineering & Technology\nAl Musanna College\nOman Tourism College"
-                )
-        return [AllSlotsReset()]
-
-
-class ValidateScholarshipAvailabilityForm(FormValidationAction):
-    def name(self) -> Text:
-        return "validate_scholarship_availability_form"
-
-    def validate_region(
-            self,
-            slot_value: Any,
-            dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: DomainDict,
-    ) -> Dict[Text, Any]:
-        """Validate region value."""
-        slot_value = convert_number(slot_value)
-        text_of_last_user_message = tracker.latest_message.get("text").lower()
-
-        local = ['محلي', 'local', '1', '١']
-        international = ['دولي', 'international', '2', '٢']
-        for item in local:
-            if item in text_of_last_user_message:
-                return {'region': 'local'}
-        for item in international:
-            if item in text_of_last_user_message:
-                return {'region': 'international'}
-        return {"region": None}
-
-    def validate_graduate(
-            self,
-            slot_value: Any,
-            dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: DomainDict,
-    ) -> Dict[Text, Any]:
-        """Validate graduate value."""
-        slot_value = convert_number(slot_value)
-        text_of_last_user_message = tracker.latest_message.get("text").lower()
-        ug = ['حت التخرج', 'الجامعية', 'under graduate', '1', 'undergraduate', '١']
-        g = ['خريج', 'يتخرج', 'graduate', '2', '٢']
-        pg = ['دراسات عليا', 'دراسات عليا', 'post graduate', 'post graduate', '3', '٣']
-        for item in ug:
-            if item in text_of_last_user_message:
-                return {'graduate': 'ug'}
-        for item in g:
-            if item in text_of_last_user_message:
-                return {'graduate': 'g'}
-        for item in pg:
-            if item in text_of_last_user_message:
-                return {'graduate': 'pg'}
-        return {"region": None}
-
 
 class ValidateSearchProgramCode(FormValidationAction):
     def name(self) -> Text:
@@ -133,7 +49,7 @@ class ActionSubmitSearchProgramCode(Action):
                 dispatcher.utter_message(
                     text=program["details"] + "\n \n " + a + " \n \n" + b
                 )
-                return [AllSlotsReset(),Restarted()]
+                return [AllSlotsReset(), Restarted()]
         dispatcher.utter_message(
             text=f"تم إدخال الرمز بشكل غير صحيح ، الرجاء إدخال الرمز الصحيح."
         )
@@ -165,7 +81,7 @@ class ValidateLocalSchoo(FormValidationAction):
                     pass
 
             dispatcher.utter_message(
-                text=text + "\n \n" + """اكتب "0" للرجوع أو اكتب "خروج" للخروج من المحادثة """
+                text=text + """اكتب "0" للرجوع أو اكتب "خروج" للخروج من المحادثة"""
             )
 
             return {"city_list": slot_value}
@@ -205,7 +121,7 @@ class ActionSubmitLocalSchoolForm(Action):
                      int(tracker.get_slot("city_list")) - 1
                      ][
                      int(tracker.get_slot("wilaya_list"))
-                 ][1] + """اكتب "1 للرجوع إلى القائمة الرئيسية أو اكتب" خروج للخروج من المحادثة"""
+                 ][1] + """\nاكتب "1 للرجوع إلى القائمة الرئيسية أو اكتب" خروج للخروج من المحادثة"""
         )
         return [AllSlotsReset(), Restarted()]
 
@@ -466,7 +382,9 @@ class ValidateSearchProgramCon(FormValidationAction):
             req_s = await self.required_slots(
                 self.slots_mapped_in_domain(domain), dispatcher, tracker, domain
             )
+            print("req_s: ", req_s)
             last_slot = req_s[req_s.index(current_slot) - 1]
+            print()
             return {
                 last_slot: None,
                 current_slot: None
@@ -489,11 +407,13 @@ class ValidateSearchProgramCon(FormValidationAction):
     ) -> Dict[Text, Any]:
         slot_value = convert_number(slot_value)
         if slot_value.lower() == "0":
-            current_slot = "select_abroad_category"
+            current_slot = "select_abroad_country"
             req_s = await self.required_slots(
                 self.slots_mapped_in_domain(domain), dispatcher, tracker, domain
             )
+            print("req_s: ", req_s)
             last_slot = req_s[req_s.index(current_slot) - 1]
+            print("last_slot: ", last_slot)
             return {
                 last_slot: None,
                 current_slot: None
@@ -1108,17 +1028,17 @@ class ActionSubmitSearchProgramConForm(Action):
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         a = """ويمكن الاطلاع على وصف البرنامج من خلال الرابط التالي مع مراعاة الترتيب عن اختيار المجال المعرفي واسم 
                 المؤسسة ورمز البرنامج لعرض الوصف
-                https://apps.heac.gov.om:888/SearchEngine/faces/programsearchengine.jsf\n
+                https://apps.heac.gov.om:888/SearchEngine/faces/programsearchengine.jsf
                 """
         b = """اكتب 1 للعودة إلى القائمة الرئيسية ، أو اكتب "خروج" للخروج من المحادثة"""
-        ab = f"\n \n{a}\n \n{b}"
+        ab = f"\n \n{a}\n{b}"
         if tracker.get_slot("select_country") == "2" and tracker.get_slot("select_abroad_category") == "2":
-            dispatcher.utter_message(
-                text="رمز البرنامج DE001    :اسم البرنامج:  Direct Entry Scholarship :المجال المعرفي: غير محدد :نوع "
-                     "البرنامج: بعثة خارجية   :اسم المؤسسة التعليمية : دائرة البعثات الخارجية :بلد الدراسة : دول "
-                     "مختلفة :فئة الطلبة : غير اعاقة " + ab
-            )
-            return [AllSlotsReset(), Restarted()]
+            # dispatcher.utter_message(
+            #     text="رمز البرنامج DE001    :اسم البرنامج:  Direct Entry Scholarship :المجال المعرفي: غير محدد :نوع "
+            #          "البرنامج: بعثة خارجية   :اسم المؤسسة التعليمية : دائرة البعثات الخارجية :بلد الدراسة : دول "
+            #          "مختلفة :فئة الطلبة : غير اعاقة " + ab
+            # )
+            return [AllSlotsReset(), Restarted(), FollowupAction("direct_entry_program_form")]
         if tracker.get_slot("select_country") == "2" and tracker.get_slot("select_abroad_category") == "3":
             dispatcher.utter_message(
                 text="لدينا فقط برنامج الإعاقة في الأردن.:\n رمز البرنامج SE890    :اسم البرنامج:  البرنامج مخصص "
@@ -1132,7 +1052,7 @@ class ActionSubmitSearchProgramConForm(Action):
             stream_option = tracker.get_slot("select_study_stream")
             codes = tracker.get_slot("select_abroad_program_code")
 
-            program_code = "SE680"
+            program_code = "BS237"
             for item in abroad_college.abroad_country:
                 if str(item["country_option"]) == country_option:
                     for item1 in item["streams_available"]:
@@ -1397,18 +1317,18 @@ class AskForSubMenu(Action):
         elif main_menu_option == "2":
             dispatcher.utter_message(
                 text="""الرجاء الاختيار من القائمة الفرعية أدناه
-1. مواعيد لتعديل الرغبات
+1. مواعيد تعديل الرغبات
 2. البرامج المقدمة
 3. جامعات القبول المباشر
-4. مدارس التوطين / الامتياز التجاري
+4. مدارس التوطين / الامتياز
 5. أسئلة حول تعديل الرغبات
 الرجاء كتابة "0" للعودة إلى القائمة الرئيسية ، واكتب "خروج" للخروج من المحادثة
                 """
             )
         elif main_menu_option == "3":
             dispatcher.utter_message(
-                text="""الرجاء الاختيار من القائمة الفرعية أدناه
-1. مواعيد الامتحانات والمقابلات
+                text="""اختر واحد ما يلي:
+1. مواعيد الاختبارات والمقابلات
 2. التواصل مع المؤسسات
 3. أسئلة حول الامتحانات والمقابلات
 الرجاء كتابة "0" للعودة إلى القائمة الرئيسية ، واكتب "خروج" للخروج من المحادثة
@@ -1416,12 +1336,12 @@ class AskForSubMenu(Action):
             )
         elif main_menu_option == "4":
             dispatcher.utter_message(
-                text="""الرجاء الاختيار من القائمة الفرعية أدناه
+                text="""اختر واحد من  ما يلي:
 1. مواعيد الفرز
 2. نتائج الفرز
-3. البرامج الدراسية وبأسعار تنافسية
-4. أكمل عملية التسجيل
-5. أسئلة حول الفحص
+3. البرامج الدراسية والمعدلات التنافسية
+4. استكمال إجراءات التسجيل
+5.  أسئلة عن الفرز
 الرجاء كتابة "0" للعودة إلى القائمة الرئيسية ، واكتب "خروج" للخروج من المحادثة
                 """
             )
@@ -1441,7 +1361,9 @@ class AskForSubMenu(Action):
                 text="""اختر واحد من ما يلي
 1. مواعيد الخدمات المساندة
 2. طريقة التقدم للخدمات المساندة 
-3. اسئلة عن الخدمات المساندة"""
+3. اسئلة عن الخدمات المساندة
+الرجاء كتابة "0" للعودة إلى القائمة الرئيسية ، واكتب "خروج" للخروج من المحادثة
+"""
             )
         return []
 
@@ -1477,58 +1399,38 @@ class ActionSubmitMainMenuForm(Action):
         # Option 1.6
         if main_menu_option == "1" and sub_menu_option == "6":
             dispatcher.utter_message(
-                text="""1.      علــى جميــع الطلبــة ضــرورة التســجيل واختيــار البرامــج فــي الفتــرات المحــددة 
-                للتسجيل - مهمــا كانــت نتيجــة الطالــب فــي الامتحانــات- 2.      لــن تكــون هنــاك فرصــة لطلبــة 
-                الــدور الثانــي للتســجيل أو تعديــل برامجهــم بعــد ظهــور نتائــج الــدور الثانــي لطلبــة دبلــوم 
-                التعليــم العــام. 
-
-3.      علــى الطالــب الــذي لــم ينجــح فــي امتحــان الــدور الاول فــي مــادة أو أكثــر اختيــار البرامــج 
-وتعديــل رغباتــه فــي نفــس الفتــرات المحــددة 4.      ينصــح الطالــب أن يختــار مــن البرامــج الدراســية بنــاء 
-علــى رغباتــه ونتائجــه المتوقعــة والتــي تعكــس مســتواه الدراســي الحقيقــي. 
-
-5.      طلبــة الــدور الثانــي لا يمكنهــم التقــدم للبرامــج التــي تتطلــب مقابــلات شــخصية أو اختبــارات قبــول أو فحوصــات طبيــة
-
-6.      يقــوم المركــز بتحديــد البرامــج التــي يمكــن أن يُقبــل بهــا الطلبــة الذيــن تظهــر نتائجهــم 
-الدراســية بعــد الفــرز الاول حســب اختياراتهــم للبرامــج وترتيبهــا ، بشــرط أن تكــون معدلاتهــم التنافســية 
-أعلــى أو مســاوٍ لاخــر معــدل تنافســي تــم قبولــه فــي تلــك البرامــج بالفــرز الســابق. 
-
-7.      يحــق للطالــب المطالبــة بالمقعــد المســتحق لــه إذا كان مــن البرامــج الحكوميــة فــي العــام التالــي 
-إذا اســتنفذت أعــداد المقاعــد المحــددة فــي الفــرز الاول لذلــك البرنامــج أو بــدأت الدراســة ونظــام المؤسســة 
-لا يســمح بقبــول طلبــة جــدد بعــد تاريــخ معيــن تحــدده تلــك المؤسســة وذلــك بعــد موافقــة المؤسســة علــى 
-ذلــك، وفــي حــال الرفــض يعــوض الطالــب ببرنامــج آخــر ضمــن قائمــة اختياراتــه. 
-
-اكتب 1 للعودة إلى القائمة الرئيسية ، أو اكتب "خروج" للخروج من المحادثة"""
+                text="""1:- علــى جميــع الطلبــة ضــرورة التســجيل واختيــار البرامــج فــي الفتــرات المحــددة للتسجيل - مهمــا كانــت نتيجــة الطالــب فــي الامتحانــات 
+2:- لــن تكــون هنــاك فرصــة لطلبــة الــدور الثانــي للتســجيل أو تعديــل برامجهــم بعــد ظهــور نتائــج الــدور الثانــي لطلبــة دبلــوم التعليــم العــام.
+3:-      علــى الطالــب الــذي لــم ينجــح فــي امتحــان الــدور الاول فــي مــادة أو أكثــر اختيــار البرامــج وتعديــل رغباتــه فــي نفــس الفتــرات المحــددة 
+4:- ينصــح الطالــب أن يختــار مــن البرامــج الدراســية بنــاء علــى رغباتــه ونتائجــه المتوقعــة والتــي تعكــس مســتواه الدراســي الحقيقــي.
+5:- طلبــة الــدور الثانــي لا يمكنهــم التقــدم للبرامــج التــي تتطلــب مقابــلات شــخصية أو اختبــارات قبــول أو فحوصــات طبيــة
+6:- يقــوم المركــز بتحديــد البرامــج التــي يمكــن أن يُقبــل بهــا الطلبــة الذيــن تظهــر نتائجهــم الدراســية بعــد الفــرز الاول حســب اختياراتهــم للبرامــج وترتيبهــا ، بشــرط أن تكــون معدلاتهــم التنافســية أعلــى أو مســاوٍ لاخــر معــدل تنافســي تــم قبولــه فــي تلــك البرامــج بالفــرز الســابق.
+7:- يحــق للطالــب المطالبــة بالمقعــد المســتحق لــه إذا كان مــن البرامــج الحكوميــة فــي العــام التالــي إذا اســتنفذت أعــداد المقاعــد المحــددة فــي الفــرز الاول لذلــك البرنامــج أو بــدأت الدراســة ونظــام المؤسســة لا يســمح بقبــول طلبــة جــدد بعــد تاريــخ معيــن تحــدده تلــك المؤسســة وذلــك بعــد موافقــة المؤسســة علــى ذلــك، وفــي حــال الرفــض يعــوض الطالــب ببرنامــج آخــر ضمــن قائمــة اختياراتــه.
+اكتب 1 للعودة إلى القائمة الرئيسية ، أو اكتب "خروج" للخروج من المحادثة
+"""
             )
             return [AllSlotsReset(), Restarted()]
 
         # Option 1.7
         if main_menu_option == "1" and sub_menu_option == "7":
             dispatcher.utter_message(
-                text="""على الطلبة من  ذوي الاعاقة اختيار البرامج التي تتناسب مع نوع إعاقتهم. علــى ســبيل المثــال: 
-                الطالــب المصــاب بإعاقــة جســدية كشــللٍ فــي بعــض الاطــراف عليــه عــدم التقــدم للبرامــج 
-                التــي تتطلــب أن يكــون المتقــدم خــالٍ مــن جميــع أنــواع الاعاقــات الجســدية ، لانــه يتعــارض 
-                مــع متطلبــات تلــك البرامــج. """
+                text="""يجب على الطلاب ذوي الإعاقة اختيار البرامج التي تناسب نوع إعاقتهم. على سبيل المثال:
+لا يجوز للطالب المصاب بإعاقة جسدية مثل الشلل في بعض الأطراف التقدم للبرامج التي تتطلب خلو المتقدم من جميع أنواع الإعاقات الجسدية ، لأنه يتعارض مع متطلبات هذه البرامج."""
             )
             return [AllSlotsReset(), Restarted()]
 
         # Option 1.8
         if main_menu_option == "1" and sub_menu_option == "8":
             dispatcher.utter_message(
-                text="""١ يجب على الطلاب العمانيين الحاصلين على معادلة دبلوم التعليم العام من خارج السلطنة والطلاب 
-                الذين يدرسون في مدارس المجتمع داخل السلطنة إدخال بياناتهم الشخصية في نظام القبول الإلكتروني من خلال 
-                الشاشة المخصصة لذلك: الطلاب العمانيون خارج السلطنة. أو داخل السلطنة: حملة الشهادات المعادلة للدبلوم 
-                التربوي\n ٢ عدم الدقة في إدخال البيانات يحرم الطالب من الحصول على مقعد بسبب \n  ٣ لا يحق لهؤلاء الطلاب 
-                التنافس على المقاعد المعروضة ، ويعتبر تسجيلهم ملغياً إذا لم يكن لديهم نسخة من كشف الدرجات وبطاقة 
-                الهوية ومعادلة وزارة التربية والتعليم في نظام القبول القياسي في المحدد. زمن.\n ٤ تنزيل المستندات بتنسيق 
-                PDF فقط ، ولا يتجاوز حجم الملف الواحد 512 كيلوبايت. إذا حصل على معادلة مؤقتة فيجب عليه إحضار المعادلة 
-                وتكون المعادلة النهائية بعد صدوره مباشرة ويعاد النظر في المقعد الذي حصل عليه في حالة تساوي المعادلة 
-                النهائية\n ٦ ـ يختلف الطلاب الذين يدرسون مناهج أجنبية وتصدر نتائجه بالأحرف الأبجدية ، أرفق مفتاحًا أو 
-                دليلًا لحساب الدرجات والذي يكون عادة في نهاية الورقة. الدرجات أو الأدلة على ذلك من جهة إصدار الشهادة 
-                ، وإلا فسيتم معالجة نتائجها. بالمقارنة مع دبلوم التعليم العام يؤخذ المتوسط ​​الحسابي في كل تقدير. كما 
-                صرحت به سلطة إصدار الشهادات. رابط التسجيل 
-                https://apps.heac.gov.om/Student/faces/Registration/RegistrationMenu.jspx 
+                text="""1:-       الطلبــة العمانيــون الحاصلــون علــى مــا يعــادل دبلــوم التعليــم العــام مــن خــارج الســلطنة، والطلبــة الدارســون فــي مــدارس الجاليــات داخــل الســلطنة عليهــم إدخــال بياناتهــم الشــخصية فــي نظــام القبــول الالكترونــي عــن طريــق الشاشــة المخصصــة لذلــك وهي: طلبــة عمانيــون خــارج أو داخــل الســلطنة: حملــة الشــهادات المعادلــة لدبلــوم التعليــم
+2:-       عــدم الدقــة فــي إدخــال البيانــات مــن شــأنه أن يحــرم الطالــب مــن الحصــول علــى المقعــد المســتحق
+3:-       لا يحــق لهــؤلاء الطلبــة التنافــس علــى المقاعــد المعروضــة ويعتبــر تســجيلهم لاغيا إذا لــم يحملوا نســخة مــن كشــف العلامــات والبطاقــة الشــخصية ومعادلــة وزارة التربيــة والتعليــم بنظــام القبــول الموحــد فــي الوقــت المحــدد لذلــك.
+4:-       تحمل الوثائق بصيغــة PDF فقــط ولا يزيــد حجم الملف الواحد عــن KB 5:-2
+5:-       اذا حصل على معادلة مؤقته عليه احضار المعادلة النهائية بعد صدورها مباشرة، وسوف يعاد النظر في المقعد الحاصل عليه في حالة كانت المعادلة النهائية مختلفة 
+6:-       علــى الطلبــة الدارســين لمناهــج أجنبيــة تصــدر نتائجهــا بالحــروف الابجديــة، إرفــاق مفتــاح أو دليــل إحتســاب الدرجــات والــذي يكــون عــادة فــي الجهــة الخلفيــة مــن كشــف الدرجــات أو مــا يــدل علــى ذلــك مــن الجهــة المصــدرة للشــهادة، وإلا ســيتم معالجــة نتائجهــم بالمقارنــة مــع شــهادة دبلــوم التعليــم العــام، ويؤخــذ بالمتوســط الحســابي فــي كل تقديــر حســب الــوارد مــن الجهــة المصــدرة للشــهادة.
+رابط التسجيل   https://apps.heac.gov.om/Student/faces/Registration/RegistrationMenu.jspx
 
-اكتب 1 للعودة إلى القائمة الرئيسية ، أو اكتب "خروج" للخروج من المحادثة.
+اكتب 1 للعودة إلى القائمة الرئيسية ، أو اكتب "خروج" للخروج من المحادثة
 """
             )
             return [AllSlotsReset(), Restarted()]
@@ -1536,38 +1438,32 @@ class ActionSubmitMainMenuForm(Action):
         # Option 1.9
         if main_menu_option == "1" and sub_menu_option == "9":
             dispatcher.utter_message(
-                text="""1.      علــى الطلبــة العمانييــن الدارســين لشــهادة الثانويــة الســعودية الحصــول علــى معادلــة من  وزارة التربية والتعليم بســلطنة عمــان، والتــي تشــترط خضــوع الطالــب إلختبــارات المركــز الوطنــي للقيــاس ) اختبــار القــدرات العامــة واختبــار التحصيــل الدراســي للتخصصــات العلميــة(. ومــن ثــم موافــاة مركــز القبــول الموحــد بنتيجــة االختباريــن حتــى يتمكنــوا مــن المنافســة علــى برامــج مؤسســات التعليــم العالــي والبعثــات والمنــح الداخليــة والخارجيــة.
-2.      ســوف يتــم الاخــذ بنتائــج اختبــار القــدرات العامــة(30%) واختبــار التحصيــل الدراســي للتخصصــات العلميــة (40%) عنــد احتســاب المعــدل التنافســي، بالاضافة إلى مجموع درجات المواد الدراسية (12%)، و مجموع درجات المواد المطلوبة للتخصص (18%). 
-3.       على الطلبة ضرورة تحميل  الوثائق  التالية في نظام القبول اإللكتروني في الوصلة المخصصة لذلك.
-·         نسخة من الشهادة أو كشف الدرجات.
-·         نسخة من نتيجة اختبار التحصيل الدراسي للتخصصات العلمية.
-·         نسخة من نتيجة اختبار القدرات العامة.
-·         معادلة وزارة التربية والتعليم بسلطنة عمان
-·         نسخة من  البطاقة الشخصية ) أو جواز السفر.
-رابط التسجيل 
+                text="""1:- على الطلاب العمانيين للحصول على شهادة الثانوية السعودية للحصول على معادل وزارة التربية والتعليم في سلطنة عمان مما يتطلب تقديم الطلاب لاختبارات المركز الوطني للتقييم) اختبار القدرات العامة واختبار التحصيل الأكاديمي للتخصصات العلمية ( ومن ثم تزويد المركز بنتائج الاختبارات حتى يتمكنوا من التنافس على برامج مؤسسات التعليم العالي والبعثات والمنح الداخلية والخارجية.
+2:- تؤخذ نتائج اختبار القدرات العامة (30٪) واختبار التحصيل الأكاديمي للتخصصات العلمية (40٪) في الاعتبار عند احتساب المعدل التنافسي ، بالإضافة إلى مجموع الدرجات للمواد الأكاديمية (12٪). وإجمالي درجات المواد المطلوبة للتخصص (18٪).
+3:- يجب على الطلاب تحميل المستندات التالية في نظام القبول عبر الإنترنت على الرابط المقدم لذلك.
+نسخة من الشهادة أو كشف الدرجات.
+نسخة من نتيجة اختبار التحصيل الدراسي للتخصصات العلمية.
+نسخة من نتيجة اختبار القدرات العامة.
+معادلة وزارة التربية والتعليم في سلطنة عمان
+نسخة من بطاقة الهوية) أو جواز السفر.
+رابط التسجيل
 https://apps.heac.gov.om/Student/faces/Registration/RegistrationMenu.jspx
-
-اكتب 1 للعودة إلى القائمة الرئيسية ، أو اكتب "خروج" للخروج من المحادثة.
-"""
+اكتب 1 للعودة إلى القائمة الرئيسية ، أو اكتب "خروج" للخروج من المحادثة."""
             )
             return [AllSlotsReset(), Restarted()]
 
         # Option 1.10
         if main_menu_option == "1" and sub_menu_option == "10":
             dispatcher.utter_message(
-                text="""1. يجب على الطلاب العمانيين الذين يدرسون للحصول على شهادة الثانوية العامة السعودية الحصول على 
-                معادلة من وزارة التربية والتعليم في سلطنة عمان ، الأمر الذي يتطلب من الطالب الخضوع لاختبارات المركز 
-                الوطني للقياس (اختبار القدرات العامة واختبار التحصيل الأكاديمي للتخصصات العلمية). . ثم تزويد مركز 
-                القبول الموحد بنتائج الاختبارين حتى يتمكنوا من التنافس على برامج مؤسسات التعليم العالي والمنح والمنح 
-                الداخلية والخارجية. 
-
-2. يتم أخذ نتائج اختبار القدرات العامة (30٪) واختبار التحصيل الأكاديمي للتخصصات العلمية (40٪) عند حساب المتوسط 
-​​التنافسي ، بالإضافة إلى مجموع الدرجات للمواد الدراسية (12٪). مجموع درجات المواد المطلوبة للتخصص (18٪). 
-
-3. يجب على الطلاب تحميل المستندات التالية في البريد الإلكتروني لنظام القبول على الرابط المقدم. نسخة من الشهادة أو كشف 
-الدرجات. نسخة من نتيجة اختبار التحصيل الدراسي للتخصصات العلمية. نسخة من نتيجة اختبار القدرات العامة. · معادلة وزارة 
-التربية والتعليم في سلطنة عمان · صورة من بطاقة الهوية) أو جواز السفر تسجيل الرابط 
-https://apps.heac.gov.om/Student/faces/Registration/RegistrationMenu.jspx """
+                text="""1:-    عليهــم إدخــال بياناتهــم فــي نظــام القبــول الالكترونــي عــن طريــق الشاشــة المخصصــة  
+2:-        عــدم الدقــة فــي إدخــال البيانــات مــن شــأنه أن يحــرم الطالــب مــن الحصــول علــى المقعــد المســتحق
+3:-        لا يحــق لهــؤلاء الطلبــة التنافــس علــى المقاعــد المعروضــة ويعتبــر تســجيلهم لاغيا إذا لــم يحملوا نســخة مــن كشــف العلامــات والبطاقــة الشــخصية ومعادلــة وزارة التربيــة والتعليــم بنظــام القبــول الموحــد فــي الوقــت المحــدد لذلــك.
+4:-        تحمل الوثائق بصيغــة PDF فقــط ولا يزيــد حجم الملف الواحد عــن KB 512
+5:-        اذا حصل على معادلة مؤقته عليه احضار المعادلة النهائية بعد صدورها مباشرة، وسوف يعاد النظر في المقعد الحاصل عليه في حالة كانت المعادلة النهائية مختلفة 
+6:-        إذا تعــذر علــى الطالــب دراســة إحــدى المــواد العلميــة فــي الصــف الثانــي عشــر، فيحــق لــه طلــب احتســابها مــن الصفــوف ألادنــى وذلــك بإرفاقهــا فــي الخانــات الخاصــة بهــا فــي وصلــة إرفــاق المســتندات ( شــهادة الصفيــن العاشــر والحــادي عشــر) وإدراج المــادة الدراســية والدرجــة المتحصــل عليهــا فــي وصلــة إدخــال المــواد والدرجــات، وإال ســيتم إحتســاب درجــات الصــف الثانــي عشــر فقــط.
+7:-        إذا كان نظــام التقييــم فــي المدرســة غيــر مئــوي، فيجــب علــى الطالــب أن يرفــق مقيــاس الدرجــات مــن المدرســة أو مــن األكاديميــة أو نظــام الدراســة الخــاص بــه الــذي يحــول الدرجــة أو التقديــر إلــى درجــة مئويــة، وإن تعــذر ذلــك فســيتم اســتخدام نمــاذج لبعــض المقاييــس الامريكية المتداولــة.
+8:-        يحــق للمركــز عــدم احتســاب جميــع المــواد الــواردة فــي الشــهادة إذا لــم تكــن مطلوبــة مــنِقبــل مؤسســات التعليــم العالــي، كمــا يمكــن عــدم احتســاب أكثــر عــن 10 مــواد دراســية.
+رابط التسجيل https://apps.heac.gov.om/Student/faces/Registration/RegistrationMenu.jspx """
             )
             return [AllSlotsReset(), Restarted()]
 
@@ -1640,11 +1536,16 @@ https://apps.heac.gov.om/Student/faces/Registration/RegistrationMenu.jspx """
                 text="""اكتب مفردات البحث  (يجب ان تكون كلمتي " الخدمات المساندة " من بينها)"""
             )
             return [AllSlotsReset(), Restarted()]
-        if main_menu_option in ["4", "5"] and sub_menu_option == "2":
-            dispatcher.utter_message(
-                text="""سوف يتم لاحقا عرض نتائج الفرز"""
-            )
-            return [AllSlotsReset(), Restarted()]
+        if main_menu_option in ["4"] and sub_menu_option == "2":
+            # dispatcher.utter_message(
+            #     text="""سوف يتم لاحقا عرض نتائج الفرز"""
+            # )
+            return [AllSlotsReset(), Restarted(), FollowupAction('offer_form'), SlotSet("main_menu", "1")]
+        if main_menu_option in ["5"] and sub_menu_option == "2":
+            # dispatcher.utter_message(
+            #     text="""سوف يتم لاحقا عرض نتائج الفرز"""
+            # )
+            return [AllSlotsReset(), Restarted(), FollowupAction('offer_form'), SlotSet("main_menu", "2")]
 
         # institute Search
         if main_menu_option in ["1", "3"] and sub_menu_option in ["5", "2"]:
@@ -1654,12 +1555,12 @@ https://apps.heac.gov.om/Student/faces/Registration/RegistrationMenu.jspx """
             return [AllSlotsReset(), Restarted()]
         # Direct Entry program
         if main_menu_option in ["1", "2"] and sub_menu_option == "3":
-            dispatcher.utter_message(
-                text="رمز البرنامج DE001 :اسم البرنامج: Direct Entry Scholarship :المجال المعرفي: غير محدد :نوع "
-                     "البرنامج: بعثة خارجية :اسم المؤسسة التعليمية : دائرة البعثات الخارجية :بلد الدراسة : دول مختلفة "
-                     ":فئة الطلبة : غير اعاقة "
-            )
-            return [AllSlotsReset(), Restarted()]
+            # dispatcher.utter_message(
+            #     text="رمز البرنامج DE001 :اسم البرنامج: Direct Entry Scholarship :المجال المعرفي: غير محدد :نوع "
+            #          "البرنامج: بعثة خارجية :اسم المؤسسة التعليمية : دائرة البعثات الخارجية :بلد الدراسة : دول مختلفة "
+            #          ":فئة الطلبة : غير اعاقة "
+            # )
+            return [AllSlotsReset(), Restarted(), FollowupAction("direct_entry_program_form")]
         if main_menu_option in ["1", "2"] and sub_menu_option == "4":
             return [AllSlotsReset(), FollowupAction("local_school_form")]
 
@@ -1668,15 +1569,15 @@ https://apps.heac.gov.om/Student/faces/Registration/RegistrationMenu.jspx """
             opt = tracker.get_slot("desired_service")
             if opt == "1":
                 dispatcher.utter_message(
-                    text="النظام : يرسل مقطع فيديو عن طريقة التسجيل "
+                    text="النظام : يرسل مقطع فيديو عن طريقة التسجيل\n" + "\nhttps://youtu.be/JG6NskPaDZk"
                 )
             elif opt == "2":
                 dispatcher.utter_message(
-                    text="النظام : يرسل مقطع فيديو عن طريقة التسجيل "
+                    text="النظام : يرسل مقطع فيديو عن طريقة التسجيل " + "\nhttps://youtu.be/JG6NskPaDZk"
                 )
             else:
                 dispatcher.utter_message(
-                    text="النظام : يرسل مقطع فيديو عن طريقة التسجيل "
+                    text="النظام : يرسل مقطع فيديو عن طريقة التسجيل " + "\nhttps://youtu.be/JG6NskPaDZk"
                 )
 
             return [AllSlotsReset(), Restarted()]
@@ -1708,18 +1609,7 @@ class ActionDefaultFallback(Action):
 
         if number_of_fallback == 1:
             senders_maintain["sender"] = 0
-            dispatcher.utter_message(
-                text="""للمزيد من المعلومات يمكنك التواصل بإحدى وسائل التواصل التالية
-هاتف رقم
-24340900
-البريد الالكتروني
-public.services@mohe.gov.om
-تويتر
-@HEAC_INFO
-
-                """
-            )
-            return [UserUtteranceReverted(), Restarted()]
+            return [AllSlotsReset(), FollowupAction('humanhandoff_yesno_form')]
         else:
             dispatcher.utter_message(
                 text="أنا آسف ، لم أفهم ذلك تمامًا. هل يمكنك إعادة الصياغة؟"
@@ -1738,6 +1628,10 @@ class ActionExit(Action):
             tracker: Tracker,
             domain: Dict[Text, Any],
     ) -> List[Dict[Text, Any]]:
+        print(20*"-")
+        print(tracker.get_latest_input_channel().lower())
+        print(20 * "-")
+
         dispatcher.utter_message(
             text="""شكرا على تواصلك مع مركز القبول الموحد(HEAC).
 يومك سعيد"""
@@ -1780,7 +1674,6 @@ class ValidateSeventhMenuForm(FormValidationAction):
         if tracker.get_slot("seventh_main_menu") == "3" and tracker.get_slot("seventh_year") == "2":
             return ["seventh_main_menu", "seventh_year"]
         return ["seventh_main_menu", "seventh_year", "seventh_sub_menu"]
-
 
     async def validate_seventh_main_menu(
             self,
@@ -1890,19 +1783,19 @@ class ValidateSeventhMenuForm(FormValidationAction):
                 self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
         ) -> List[EventType]:
             if tracker.get_slot("seventh_main_menu") in ["1"]:
-                dispatcher.utter_message(text=f"الرجاء تحديد نوع البيان\n:"
-                                              f"1. عرضت المقاعد\n"
-                                              f"2. الطلاب المقبولين حسب المؤهل الأكاديمي\n"
-                                              f"""3. قبول الطلاب حسب التخصص\n"""
+                dispatcher.utter_message(text=f"حدد نوع البيان\n"
+                                              f"1. المقاعد المعروضة\n"
+                                              f"2. المقبولين حسب المؤهل الدراسي\n"
+                                              f"""3. المقبولين حسب التخصص الرئيسي\n"""
                                               f"\n"
                                               f"""اكتب "خروج" للخروج من المحادثة ، واكتب "0" للعودة إلى الخيار السابق"""
                                          )
             elif tracker.get_slot("seventh_main_menu") in ["2"]:
-                dispatcher.utter_message(text=f"الرجاء تحديد نوع البيان\n"
-                                              f"1. حسب مكان الدراسة\n"
-                                              f"2. حسب فئة المنظمة\n"
-                                              f"3. حسب المؤهل العلمي\n"
-                                              f"4. حسب التخصص\n"
+                dispatcher.utter_message(text=f"حدد نوع البيان \n"
+                                              f"1. حسب مكان الدراسة \n"
+                                              f"2. حسب فئة المؤسسة\n"
+                                              f"3. حسب المؤهل الدراسي\n"
+                                              f"4. حسب التخصص الرئيسي\n"
                                               f"\n"
                                               f"""اكتب "خروج" للخروج من المحادثة ، واكتب "0" للعودة إلى الخيار السابق"""
                                          )
@@ -1943,24 +1836,28 @@ class ActionSubmitSeventhMenuForm(Action):
 اكتب "1" للعودة إلى القائمة الرئيسية"""
             )
         if main_menu_option == "3" and year_option == "1" and sub_menu_option == "1":
-            dispatcher.utter_message(text="""داخل السلطنة - المجموع (21870)
+            dispatcher.utter_message(text="""
+داخل السلطنة- المجموع (21870) 
 
-ذكور (8383) (38.3)٪
-أنثى (13487) (61.7)٪
-المجموع (21870)
-عمانيون (21392) (97.8)٪
-غير العمانيين (478) (2.2)٪
-خارج السلطنة (العمانيون) المجموع (1946)
-ذكر (1211) (62.2)٪
-أنثى (735) (37.8)٪
-يمكن الاطلاع على التقرير السنوي من خلال الرابط التالي:
-https://www.heac.gov.om/index.php/annual-statistical-reports-en
+ذكور  (8383)   (38.3)%
+اناث (13487)    (61.7)%
+المجموع (21870)  
+عماني (21392)  (97.8)%
+غير عماني (478)  (2.2)%
+
+خارج السلطنة (العمانيين) المجموع  (1946)  
+ذكور (1211)   (62.2)%
+اناث (735)   (37.8)%
+
+يمكن الاطلاع على التقرير السنوي من خلال الرابط التالي: 
+https://www.heac.gov.om/index.php/annual-statistical-reports-ar
 
 اكتب "1" للعودة إلى القائمة الرئيسية
 """)
             return [AllSlotsReset(), Restarted()]
         if main_menu_option == "3" and year_option == "1" and sub_menu_option == "2":
-            dispatcher.utter_message(text="""داخل السلطنة - المجموع (21870) 
+            dispatcher.utter_message(text="""
+داخل السلطنة - المجموع (21870) 
 بكالوريوس/ليسانس (13630)  (62.3)%
 دبلوم (5234)  (23.9)%
 ماجستير (1440)  (6.6)%
@@ -1980,6 +1877,7 @@ https://www.heac.gov.om/index.php/annual-statistical-reports-en
 دبلوم عالي/دبلوم الدراسات العليا (14)  (0.7)%
 شهادة مهنية/دبلوم مهني (8)  (0.4)%
 دبلوم (7)  (0.4)%
+
 يمكن الاطلاع على التقرير السنوي من خلال الرابط التالي: 
 https://www.heac.gov.om/index.php/annual-statistical-reports-ar
 
@@ -1987,7 +1885,7 @@ https://www.heac.gov.om/index.php/annual-statistical-reports-ar
 """)
             return [AllSlotsReset(), Restarted()]
         if main_menu_option == "3" and year_option == "1" and sub_menu_option == "3":
-            dispatcher.utter_message(text="""داخل السلطنة - المجموع (21870) 
+            dispatcher.utter_message(text="""خل السلطنة - المجموع (21870) 
 الإدارة والمعاملات التجارية (30.8)%
 الهندسة والتقنيات ذات الصلة (22.0)%
 المجتمع والثقافة (15.8)%
@@ -2021,10 +1919,10 @@ https://www.heac.gov.om/index.php/annual-statistical-reports-ar
 """)
             return [AllSlotsReset(), Restarted()]
 
-
         if main_menu_option == "2" and sub_menu_option == "1":
             dispatcher.utter_message(
-                text="""داخل السلطنة: المجموع (121284) 
+                text="""
+داخل السلطنة: المجموع (121284) 
 ذكور  (51754)   (42.7)%
 اناث (69530)    (57.3)%
 عماني (117791) (97.1)%
@@ -2036,8 +1934,9 @@ https://www.heac.gov.om/index.php/annual-statistical-reports-ar
 اجمالي الدراسين (129619) 
 ذكور: (56807)
 اناث : (72812)
+
 يمكن الاطلاع على التقرير السنوي من خلال الرابط التالي: 
-https://www.heac.gov.om/index.php/annual-statistical-reports-ar 
+https://www.heac.gov.om/index.php/annual-statistical-reports-ar
 
 اكتب "1" للعودة إلى القائمة الرئيسية
 """
@@ -2145,7 +2044,6 @@ class ValidateSelectProgramByForm(FormValidationAction):
             tracker: "Tracker",
             domain: "DomainDict",
     ) -> List[Text]:
-
         return ["program_by"]
 
     def validate_program_by(
@@ -2177,4 +2075,395 @@ class ActionSubmitSelectProgramByFrom(Action):
         if tracker.get_slot("program_by") == "1":
             return [AllSlotsReset(), FollowupAction("search_program_code_form")]
         else:
-            return [AllSlotsReset(),FollowupAction("search_program_con_form")]
+            return [AllSlotsReset(), FollowupAction("search_program_con_form")]
+
+
+class ActionPDF(Action):
+
+    def name(self) -> Text:
+        return "action_pdf"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        intent = tracker.latest_message["intent"].get("name")
+        pdf_link = {
+            "1": "http://res.cloudinary.com/dd7uuyovs/image/upload/v1621921866/reunlmrmmsqhjllgj4fo.pdf",
+            "2": "http://res.cloudinary.com/dd7uuyovs/image/upload/v1621921866/reunlmrmmsqhjllgj4fo.pdf",
+            "3": "http://res.cloudinary.com/dd7uuyovs/image/upload/v1621922181/lcwgzsekf5j3tcyyezle.pdf",
+            "4": "http://res.cloudinary.com/dd7uuyovs/image/upload/v1621922221/e6fsh5nwvhgy4m1vnsw9.pdf",
+            "5": "http://res.cloudinary.com/dd7uuyovs/image/upload/v1621922258/dw6dyheo9pxrhokn7bgb.pdf",
+            "6": "http://res.cloudinary.com/dd7uuyovs/image/upload/v1621922308/ijzjyncmxsrlcbydzyz8.pdf",
+            "7": "http://res.cloudinary.com/dd7uuyovs/image/upload/v1621922344/lo2smetpj2ls0pe1mnsk.pdf",
+            "8": "http://res.cloudinary.com/dd7uuyovs/image/upload/v1621922374/qrfzib0bc1ecsj7aevss.pdf",
+            "9": "http://res.cloudinary.com/dd7uuyovs/image/upload/v1621922440/zxwlu9b0okunawrmnefv.pdf",
+            "10": "http://res.cloudinary.com/dd7uuyovs/image/upload/v1621922469/jvvxdsncacmn6oo2hf0b.pdf",
+            "11": "http://res.cloudinary.com/dd7uuyovs/image/upload/v1621922507/mmqil5akqkjwnojcixvf.pdf",
+            "12": "http://res.cloudinary.com/dd7uuyovs/image/upload/v1621922536/sgviromu79wjyw2lod1b.pdf",
+            "13": "http://res.cloudinary.com/dd7uuyovs/image/upload/v1621922570/qret2nkxckjfjgqlgbrg.pdf"
+        }
+        dispatcher.utter_message(
+            json_message={
+                "pdf": pdf_link[intent[3:]]
+            }
+        )
+
+        return [AllSlotsReset(), Restarted()]
+
+
+class ValidateDirectEntryForm(FormValidationAction):
+
+    def name(self) -> Text:
+        return "validate_direct_entry_program_form"
+
+    async def required_slots(
+            self,
+            slots_mapped_in_domain: List[Text],
+            dispatcher: "CollectingDispatcher",
+            tracker: "Tracker",
+            domain: "DomainDict",
+    ) -> List[Text]:
+        return ["select_direct_country"]
+
+    async def validate_select_direct_country(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+        options_list = [str(i) for i in list(range(1, 25))]
+        if str(slot_value) in options_list:
+            return {
+                "select_direct_country": slot_value
+            }
+        return {
+            "select_direct_country": None
+        }
+
+
+class ActionSubmitDirectEntryForm(Action):
+    def name(self) -> Text:
+        return "action_submit_direct_entry_program_form"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        country_option = tracker.get_slot("select_direct_country")
+        start = "هذه المعاهد متاحة للكلية المختارة:"
+        end = """اكتب "خروج" للخروج من المحادثة أو اكتب "1" للعودة إلى القائمة الرئيسية"""
+        colleges = ""
+        for item in institute[country_option]:
+            colleges = colleges + item + "\n"
+        dispatcher.utter_message(
+            text=start + "\n" + colleges + end
+        )
+
+        return [AllSlotsReset(), Restarted()]
+
+
+class OfferForm(FormValidationAction):
+
+    def name(self) -> Text:
+        return "validate_offer_form"
+
+    async def required_slots(
+            self,
+            slots_mapped_in_domain: List[Text],
+            dispatcher: "CollectingDispatcher",
+            tracker: "Tracker",
+            domain: "DomainDict",
+    ) -> List[Text]:
+        try:
+            if tracker.get_latest_input_channel().lower() == 'web':
+                return ["civil_number", "phone_number", "otp"]
+        except:
+            return ["civil_number"]
+        return ["civil_number"]
+
+    async def validate_civil_number(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+        phone_number = tracker.sender_id
+        return {
+            "civil_number": slot_value
+        }
+
+    async def validate_phone_number(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+        phone_number = tracker.sender_id
+        return {
+            "phone_number": slot_value
+        }
+
+    async def validate_otp(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+        phone_number = tracker.sender_id
+        return {
+            "otp": slot_value
+        }
+
+
+class AskForOtp(Action):
+    def name(self) -> Text:
+        return "action_ask_otp"
+
+    def run(
+            self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        civil_number = tracker.get_slot("civil_number")
+        if tracker.get_latest_input_channel().lower() == "web":
+            phone_number = tracker.get_slot("phone_number")
+        else:
+            phone_number = tracker.sender_id[2:]
+        main_menu_option = tracker.get_slot("main_menu")
+
+        url = "https://mohe.omantel.om/moheapp/api/student/checkAvailability"
+
+        if tracker.get_latest_input_channel().lower() == "web":
+            querystring = {"civil": civil_number, "mobileNumber": phone_number, "web": "1"}
+        else:
+            querystring = {"civil": civil_number, "mobileNumber": phone_number}
+
+        payload = ""
+        response = requests.request("GET", url, data=payload, params=querystring)
+        if response.json()["success"]:
+            otp_validate[phone_number] = response.json()["otp"]
+            print(20*"==")
+            print("OTP: ", response.json()["otp"])
+            print("phone_number: ", phone_number)
+            print(20 * "==")
+            dispatcher.utter_message(
+                text="""لقد أرسلنا OTP إلى رقمك ، يرجى إدخال OTP للتحقق
+اكتب "خروج" للخروج من المحادثة"""
+            )
+            return []
+        else:
+            dispatcher.utter_message(
+                text=response.json()[
+                         'message'] + "\n" + """اكتب "خروج" للخروج من المحادثة ، أو اكتب "1" للعودة إلى القائمة الرئيسية"""
+            )
+            return [AllSlotsReset(), Restarted()]
+
+
+
+class ActionSubmitOfferForm(Action):
+    def name(self) -> Text:
+        return "action_submit_offer_form"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        civil_number = tracker.get_slot("civil_number")
+        if tracker.get_latest_input_channel().lower() == "web":
+            phone_number = tracker.get_slot("phone_number")
+            if tracker.get_slot("otp") == otp_validate[phone_number]:
+                pass
+            else:
+                dispatcher.utter_message(
+                    text="""فشل التحقق من OTP.
+اكتب "خروج" للخروج من المحادثة ، واكتب "1" للعودة إلى القائمة الرئيسية"""
+                )
+                return [AllSlotsReset(), Restarted()]
+        else:
+            phone_number = tracker.sender_id[2:]
+        main_menu_option = tracker.get_slot("main_menu")
+
+        url = "https://mohe.omantel.om/moheapp/api/student/checkAvailability"
+
+        if tracker.get_latest_input_channel().lower() == "web":
+            querystring = {"civil": civil_number, "mobileNumber": phone_number, "web": "1"}
+        else:
+            querystring = {"civil": civil_number, "mobileNumber": phone_number}
+
+        payload = ""
+        response = requests.request("GET", url, data=payload, params=querystring)
+        if not response.json()['success']:
+            dispatcher.utter_message(
+                text= response.json()['message'] + "\n" + """اكتب "خروج" للخروج من المحادثة ، أو اكتب "1" للعودة إلى القائمة الرئيسية"""
+            )
+            return [AllSlotsReset(), Restarted()]
+        else:
+            return [
+                AllSlotsReset(), Restarted(),
+                SlotSet(key="name", value=response.json()['ArabicName']),
+                SlotSet(key="civil_number", value=civil_number),
+                FollowupAction('offer_yesno_form'),
+                SlotSet("main_menu", main_menu_option)
+            ]
+
+
+class OfferYesNoForm(FormValidationAction):
+
+    def name(self) -> Text:
+        return "validate_offer_yesno_form"
+
+    async def required_slots(
+            self,
+            slots_mapped_in_domain: List[Text],
+            dispatcher: "CollectingDispatcher",
+            tracker: "Tracker",
+            domain: "DomainDict",
+    ) -> List[Text]:
+        return ["offer_yesno"]
+
+    async def validate_offer_yesno(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+        options_list = ["1", "2"]
+        if slot_value in options_list:
+            return {
+                "offer_yesno": slot_value
+            }
+        return {
+            "offer_yesno": None
+        }
+
+
+
+class ActionSubmitOfferYesNoForm(Action):
+    def name(self) -> Text:
+        return "action_submit_offer_yesno_form"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        civil_number = tracker.get_slot("civil_number")
+        phone_number = tracker.sender_id[2:]
+        main_menu_option = tracker.get_slot("main_menu")
+        if tracker.get_slot('offer_yesno') == '1':
+            url = "https://mohe.omantel.om/moheapp/api/student/getOffer"
+            querystring = {"civil": civil_number, "type": main_menu_option}
+            payload = ""
+            response = requests.request("GET", url, data=payload, params=querystring)
+            if not response.json()['success']:
+                dispatcher.utter_message(
+                    text=response.json()['message'] + "\n" + """اكتب "خروج" للخروج من المحادثة ، أو اكتب "1" للعودة إلى القائمة الرئيسية"""
+                )
+                return [AllSlotsReset(), Restarted()]
+            else:
+                dispatcher.utter_message(
+                    text='هذه الكلية متاحة في عرضك:\n' + response.json()['message'] + "\n" + """اكتب "خروج" للخروج من المحادثة ، أو اكتب "1" للعودة إلى القائمة الرئيسية"""
+                )
+                return [
+                    AllSlotsReset(), Restarted()
+                ]
+        else:
+            dispatcher.utter_message(
+                text="لم يتم العثور على أي سجل في بياناتنا ، شكرًا على تواصلك معنا."
+            )
+            return [AllSlotsReset(), Restarted(), FollowupAction('action_exit')]
+
+
+class HumanhandoffYesNoForm(FormValidationAction):
+
+    def name(self) -> Text:
+        return "validate_humanhandoff_yesno_form"
+
+    async def required_slots(
+            self,
+            slots_mapped_in_domain: List[Text],
+            dispatcher: "CollectingDispatcher",
+            tracker: "Tracker",
+            domain: "DomainDict",
+    ) -> List[Text]:
+        return ["humanhandoff_yesno"]
+
+    async def validate_humanhandoff_yesno(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+        options_list = ["1", "2"]
+        if slot_value in options_list:
+            return {
+                "humanhandoff_yesno": slot_value
+            }
+        return {
+            "humanhandoff_yesno": None
+        }
+
+
+class ActionSubmitHumanhandoffYesNoForm(Action):
+    def name(self) -> Text:
+        return "action_submit_humanhandoff_yesno_form"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        if tracker.get_slot("humanhandoff_yesno") == "1":
+            if tracker.get_latest_input_channel() == "web":
+                dispatcher.utter_message(
+                    text="""البعض سوف يراسلك قريبا من فضلك انتظر""",
+                    json_message={
+                        "handover": True
+                    }
+                )
+            else:
+                dispatcher.utter_message(
+                    text="""الرجاء الانتقال إلى الموقع الإلكتروني أدناه:
+                    http://2.56.215.239:7073/login""",
+                )
+
+
+        else:
+            dispatcher.utter_message(
+                text="""للمزيد من المعلومات يمكنك التواصل بإحدى وسائل التواصل التالية
+هاتف رقم
+24340900
+البريد الالكتروني
+public.services@mohe.gov.om
+تويتر
+@HEAC_INFO
+"""
+            )
+
+        return [AllSlotsReset(), Restarted()]
+
+
+class AskForMainMenu(Action):
+    def name(self) -> Text:
+        return "action_ask_main_menu"
+
+    def run(
+            self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        dispatcher.utter_message(text="شكرا على اتصالك بمركز القبول الموحد🌻" + "\n"
+                                 "تهدف هذه الخدمة الافتراضية إلى مساعدتك في معرفة المزيد حول إجراءات التسجيل والقبول لمؤسسات التعليم العالي والبرامج الدراسية المقدمة للمرحلة الجامعية الأولى." + "\n"
+                                 "الرجاء تحديد مرحلة من القائمة أدناه🙂" + "\n \n" +
+                                 """1.  التسجيل (البرامج المطروحة، جامعات القبول المباشر، عناوين المؤسسات ، مدارس التوطين)
+2.  تعديل الرغبات
+3.  الاختبارات والمقابلات
+4.  الفرز الاول
+5.  الفرز الثاني
+6.  الخدمات المساندة
+7.  مؤشرات واحصاءات
+8. اخرى""")
+        return []
