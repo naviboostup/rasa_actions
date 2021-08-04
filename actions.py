@@ -2288,7 +2288,7 @@ class ActionSubmitOfferForm(Action):
             phone_number = tracker.sender_id[2:]
         main_menu_option = tracker.get_slot("main_menu")
 
-        url = "https://mohe.omantel.om/moheapp/api/student/checkAvailability"
+        url = "https://mohe.omantel.om/moheapp/api/student/checkAvailability/duplicate"
 
         if tracker.get_latest_input_channel().lower() == "web":
             querystring = {"civil": civil_number, "mobileNumber": phone_number, "web": "1"}
