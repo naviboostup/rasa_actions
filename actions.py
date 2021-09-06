@@ -10,6 +10,7 @@ from . import private_college, public_college, omandisable, abroad_college
 from .direct_country import institute
 from .local_schools import *
 from .local_schools_2 import select_prefecture, select_state
+from .otp_push_pull import push_otp, pull_otp
 from .phone_otp import otp_validate
 from .school_code import *
 from .test_code import *
@@ -2118,7 +2119,7 @@ class AskForOtp(Action):
             phone_number = tracker.sender_id[2:]
         main_menu_option = tracker.get_slot("main_menu")
 
-        url = "https://mohe.omantel.om/moheapp/api/student/checkAvailability"
+        url = "http://2.56.215.239:3010/api/student/checkAvailability"
 
         if tracker.get_latest_input_channel().lower() == "web":
             querystring = {"civil": civil_number, "mobileNumber": phone_number, "web": "1"}
@@ -2128,7 +2129,8 @@ class AskForOtp(Action):
         payload = ""
         response = requests.request("GET", url, data=payload, params=querystring)
         if response.json()["success"]:
-            otp_validate[phone_number] = response.json()["otp"]
+            # otp_validate[phone_number] = response.json()["otp"]
+            push_otp(phone_number, response.json()["otp"])
             print(20*"==")
             print("OTP: ", response.json()["otp"])
             print("phone_number: ", phone_number)
@@ -2157,7 +2159,12 @@ class ActionSubmitOfferForm(Action):
         civil_number = tracker.get_slot("civil_number")
         if tracker.get_latest_input_channel().lower() == "web":
             phone_number = tracker.get_slot("phone_number")
-            if tracker.get_slot("otp") == otp_validate[phone_number]:
+            try:
+                otp = pull_otp(phone_number)
+            except:
+                otp = "0000"
+            # if tracker.get_slot("otp") == otp_validate[phone_number]:
+            if tracker.get_slot("otp") == otp:
                 pass
             else:
                 dispatcher.utter_message(
@@ -2168,7 +2175,7 @@ class ActionSubmitOfferForm(Action):
             phone_number = tracker.sender_id[2:]
         main_menu_option = tracker.get_slot("main_menu")
 
-        url = "https://mohe.omantel.om/moheapp/api/student/checkAvailability/duplicate"
+        url = "http://2.56.215.239:3010/api/student/checkAvailability/duplicate"
 
         if tracker.get_latest_input_channel().lower() == "web":
             querystring = {"civil": civil_number, "mobileNumber": phone_number, "web": "1"}
@@ -2183,6 +2190,7 @@ class ActionSubmitOfferForm(Action):
             )
             return [AllSlotsReset(), Restarted()]
         else:
+            print("else----",response.json()['ArabicName'])
             return [
                 AllSlotsReset(), Restarted(),
                 SlotSet(key="name", value=response.json()['ArabicName']),
@@ -2236,7 +2244,7 @@ class ActionSubmitOfferYesNoForm(Action):
         phone_number = tracker.sender_id[2:]
         main_menu_option = tracker.get_slot("main_menu")
         if tracker.get_slot('offer_yesno') == '1':
-            url = "https://mohe.omantel.om/moheapp/api/student/getOffer"
+            url = "http://2.56.215.239:3010/api/student/getOffer"
             querystring = {"civil": civil_number, "type": main_menu_option}
             payload = ""
             response = requests.request("GET", url, data=payload, params=querystring)
