@@ -44,20 +44,37 @@ class ActionSubmitSearchProgramCode(Action):
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         code_from_user = tracker.get_slot('code_number').lower()
-        a = """ويمكن الاطلاع على وصف البرنامج من خلال الرابط التالي مع مراعاة الترتيب عن اختيار المجال المعرفي واسم 
-        المؤسسة ورمز البرنامج لعرض الوصف 
-        https://apps.heac.gov.om:888/SearchEngine/faces/programsearchengine.jsf """
-        b = """اكتب 1 للعودة إلى القائمة الرئيسية ، أو اكتب "خروج" للخروج من المحادثة"""
-        for program in school_codes:
-            if program["code"].lower() == code_from_user:
-                dispatcher.utter_message(
-                    text=program["details"] + "\n \n " + a + " \n \n" + b
-                )
-                return [AllSlotsReset(), Restarted()]
-        dispatcher.utter_message(
+#        a = """ويمكن الاطلاع على وصف البرنامج من خلال الرابط التالي مع مراعاة الترتيب عن اختيار المجال المعرفي واسم 
+#        المؤسسة ورمز البرنامج لعرض الوصف 
+#        https://apps.heac.gov.om:888/SearchEngine/faces/programsearchengine.jsf """
+#        b = """اكتب 1 للعودة إلى القائمة الرئيسية ، أو اكتب "خروج" للخروج من المحادثة"""
+#        for program in school_codes:
+#            if program["code"].lower() == code_from_user:
+#                dispatcher.utter_message(
+#                    text=program["details"] + "\n \n " + a + " \n \n" + b
+#                )
+#                return [AllSlotsReset(), Restarted()]
+#        dispatcher.utter_message(
+#            response="utter_invalid_code"
+#        )
+
+        url = "https://mohe.omantel.om/moheapp/api/student/getCutOff"
+        querystring = {"programCode": code_from_user}
+        payload = ""
+        response = requests.request("GET", url, data=payload, params=querystring)
+        if not response.json()['success']:
+            dispatcher.utter_message(
             response="utter_invalid_code"
-        )
-        return [AllSlotsReset(), Restarted(), FollowupAction('search_program_code_form')]
+            )
+            return [AllSlotsReset(), Restarted(), FollowupAction('search_program_code_form')]
+        else:
+            dispatcher.utter_message(
+                text= response.json()['ar_message'] + "\n" + """اكتب "خروج" للخروج من المحادثة ، أو اكتب "1" للعودة إلى القائمة الرئيسية"""
+            )
+            return [
+                AllSlotsReset(), Restarted()
+            ]
+#        return [AllSlotsReset(), Restarted(), FollowupAction('search_program_code_form')]
 
 class ValidateSearchTestCode(FormValidationAction):
     def name(self) -> Text:
