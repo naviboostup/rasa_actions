@@ -2133,7 +2133,7 @@ class AskForOtp(Action):
         if tracker.get_latest_input_channel().lower() == "web":
             phone_number = tracker.get_slot("phone_number")
         else:
-            phone_number = tracker.sender_id[2:]
+            phone_number = tracker.sender_id[3:]
         main_menu_option = tracker.get_slot("main_menu")
 
         url = "https://mohe.omantel.om/moheapp/api/student/checkAvailability"
@@ -2189,7 +2189,7 @@ class ActionSubmitOfferForm(Action):
                 )
                 return [AllSlotsReset(), Restarted()]
         else:
-            phone_number = tracker.sender_id[2:]
+            phone_number = tracker.sender_id[3:]
         main_menu_option = tracker.get_slot("main_menu")
 
         url = "https://mohe.omantel.om/moheapp/api/student/checkAvailability/duplicate"
