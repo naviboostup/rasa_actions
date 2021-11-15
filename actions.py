@@ -118,7 +118,7 @@ class ActionSubmitProgramCutoff(Action):
         url = "https://mohe.omantel.om/moheapp/api/student/getCutOff"
         querystring = {"programCode": code_from_user}
         payload = ""
-        response = requests.request("GET", url, data=payload, params=querystring)
+        response = requests.request("GET", url, data=payload, params=querystring,verify=False)
         if not response.json()['success']:
             dispatcher.utter_message(
             response="utter_invalid_code"
@@ -2220,7 +2220,7 @@ class AskForOtp(Action):
             querystring = {"civil": civil_number, "mobileNumber": phone_number}
 
         payload = ""
-        response = requests.request("GET", url, data=payload, params=querystring)
+        response = requests.request("GET", url, data=payload, params=querystring,verify=False)
         if response.json()["success"]:
             # otp_validate[phone_number] = response.json()["otp"]
             push_otp(phone_number, response.json()["otp"])
@@ -2276,7 +2276,7 @@ class ActionSubmitOfferForm(Action):
             querystring = {"civil": civil_number, "mobileNumber": phone_number}
 
         payload = ""
-        response = requests.request("GET", url, data=payload, params=querystring)
+        response = requests.request("GET", url, data=payload, params=querystring,verify=False)
         if not response.json()['success']:
             dispatcher.utter_message(
                 text= response.json()['message'] + "\n" + """اكتب "خروج" للخروج من المحادثة ، أو اكتب "1" للعودة إلى القائمة الرئيسية"""
@@ -2346,7 +2346,7 @@ class ActionSubmitOfferYesNoForm(Action):
             url = "https://mohe.omantel.om/moheapp/api/student/getOffer"
             querystring = {"civil": civil_number, "type": main_menu_option}
             payload = ""
-            response = requests.request("GET", url, data=payload, params=querystring)
+            response = requests.request("GET", url, data=payload, params=querystring,verify=False)
             if not response.json()['success']:
                 dispatcher.utter_message(
                     text=response.json()['message'] + "\n" + """اكتب "خروج" للخروج من المحادثة ، أو اكتب "1" للعودة إلى القائمة الرئيسية"""
