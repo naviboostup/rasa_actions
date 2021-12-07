@@ -1629,7 +1629,10 @@ class ActionSubmitMainMenuForm(Action):
             #          "البرنامج: بعثة خارجية :اسم المؤسسة التعليمية : دائرة البعثات الخارجية :بلد الدراسة : دول مختلفة "
             #          ":فئة الطلبة : غير اعاقة "
             # )
-            return [AllSlotsReset(), Restarted(), FollowupAction("direct_entry_program_form")]
+            dispatcher.utter_message(text=
+            """سوف يتم تحديث القائمة للعام الأكاديمي 2023/2022 في وقت لاحق"""
+            )
+            #return [AllSlotsReset(), Restarted(), FollowupAction("direct_entry_program_form")]
         if main_menu_option in ["1", "2"] and sub_menu_option == "4":
             return [AllSlotsReset(), FollowupAction("school_middleware_form")]
 
@@ -1666,7 +1669,7 @@ https://www.youtube.com/watch?v=AKOLmPZJhR4"""
 
             return [AllSlotsReset(), Restarted()]
 
-        dispatcher.utter_message(text="End Of main_menu")
+        #dispatcher.utter_message(text="End Of main_menu")
 
         return [AllSlotsReset(), Restarted()]
 
