@@ -2107,8 +2107,8 @@ class ActionEducationalRegistrationForm(Action):
                 SlotSet(key="educational_registration", value=None),
                 SlotSet(key="major_menu", value=None)
             ]
-        if support_option == "8":
-                return [AllSlotsReset(), Restarted(), FollowupAction("qualification_major_form")]
+#        if support_option == "8":
+#                return [AllSlotsReset(), Restarted(), FollowupAction("qualification_major_form")]
 
 class ValidateQualificationMajorForm(FormValidationAction):
     def name(self) -> Text:
