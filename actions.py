@@ -6,7 +6,7 @@ from rasa_sdk.events import EventType, FollowupAction, AllSlotsReset, Restarted,
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 
-from . import private_college, public_college, omandisable, abroad_college
+from . import private_college, public_college, omandisable, abroad_college,agree_inside,agree_outside,nonagree_inside,nonagree_outside
 from .direct_country import institute
 from .local_schools import *
 from .local_schools_2 import select_prefecture, select_state
@@ -14,10 +14,75 @@ from .otp_push_pull import push_otp, pull_otp
 from .phone_otp import otp_validate
 from .school_code import *
 from .test_code import *
+import json
 
 from .utils import convert_number
 
 senders_maintain = {}
+
+class ValidatePostScrapperForm(FormValidationAction):
+    def name(self) -> Text:
+        return "validate_post_scrapper_form"
+
+    def validate_post_keyword(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        
+
+        return {"post_keyword": slot_value}
+
+class ActionSubmitPostScrapperForm(Action):
+    def name(self) -> Text:
+        return "action_submit_post_scrapper_form"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+            keyword_from_user = tracker.get_slot('post_keyword')
+            # tweet = find_tweet(keyword_from_user)
+            tweets = []
+            file = json.load(open("/home/adutta/rasa_chatbot/gis_chatbot/actions/tweet.json",))
+            for json_file in file:
+                for key,value in json_file.items():
+                    tweets.append(value)
+            # print(tweets)
+            # with open("/home/adutta/rasa_chatbot/gis_chatbot/actions/tweet.txt") as file:
+            #     for line in file:
+            #         tweets.append(line.rstrip())
+            str_tweet = ""
+            matched_tweet = [tweet for tweet in tweets if keyword_from_user in tweet]
+
+            fbfeeds = []
+            file1 = json.load(open("/home/adutta/rasa_chatbot/gis_chatbot/actions/facebook.json",))
+            for json_file1 in file1:
+                for key,value in json_file1.items():
+                    fbfeeds.append(value)
+            # print(tweets)
+            # with open("/home/adutta/rasa_chatbot/gis_chatbot/actions/tweet.txt") as file:
+            #     for line in file:
+            #         tweets.append(line.rstrip())
+            str_feed = ""
+            matched_feed = [tweet for tweet in fbfeeds if keyword_from_user in tweet]
+
+            if str_tweet.join(matched_tweet) != "" and str_feed.join(matched_feed) == "":
+                dispatcher.utter_message(
+                    text=str_tweet.join(matched_tweet)
+                    )
+                return [AllSlotsReset(), Restarted()]
+            elif str_feed.join(matched_feed) != "" and str_tweet.join(matched_tweet) == "":
+                dispatcher.utter_message(
+                    text=str_feed.join(matched_feed)
+                    )
+                return [AllSlotsReset(), Restarted()]
+            else:
+                dispatcher.utter_message(
+                    text="Keyword donot match"
+                    )
+                return [AllSlotsReset(), Restarted(), FollowupAction('post_scrapper_form')]
 
 class ValidateSearchProgramCode(FormValidationAction):
     def name(self) -> Text:
@@ -1311,10 +1376,59 @@ class ValidateMainMenuForm(FormValidationAction):
             domain: "DomainDict",
     ) -> List[Text]:
         if tracker.get_slot("main_menu") in ["8", "7"]:
-            return ["main_menu"]
+            return ["major_menu","main_menu"]
         if tracker.get_slot("main_menu") == "6" and tracker.get_slot("sub_menu_option") == "2":
-            return ["main_menu", "sub_menu", "desired_service"]
-        return ["main_menu", "sub_menu"]
+            return ["major_menu","main_menu", "sub_menu", "desired_service"]
+        if tracker.get_slot("major_menu") == "2":
+            return ["major_menu","educational_menu"]
+        return ["major_menu","main_menu", "sub_menu"]
+
+    async def validate_major_menu(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+        options_list = [str(i) for i in list(range(1, 3))]
+        if slot_value in options_list:
+            return {
+                "major_menu": slot_value
+            }
+        return {
+            "major_menu": None
+        }
+
+    async def validate_educational_menu(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+        if slot_value.lower() == "0":
+            current_slot = "educational_menu"
+            req_s = await self.required_slots(
+                self.slots_mapped_in_domain(domain), dispatcher, tracker, domain
+            )
+            last_slot = req_s[req_s.index("major_menu")
+            ]
+            return {
+                last_slot: None,
+                current_slot: None
+            }
+        options_list = [str(i) for i in list(range(1, 7))]
+        if slot_value in options_list:
+            return {
+                "educational_menu": slot_value
+            }
+        else:
+            return {
+            "educational_menu": None
+
+        }
 
     async def validate_main_menu(
             self,
@@ -1364,7 +1478,8 @@ class ValidateMainMenuForm(FormValidationAction):
             req_s = await self.required_slots(
                 self.slots_mapped_in_domain(domain), dispatcher, tracker, domain
             )
-            last_slot = req_s[req_s.index(current_slot) - 1]
+            last_slot = req_s[req_s.index("major_menu")
+            ]
             return {
                 last_slot: None,
                 current_slot: None
@@ -1413,19 +1528,7 @@ class AskForSubMenu(Action):
         main_menu_option = tracker.get_slot("main_menu")
         if main_menu_option == "1":
             dispatcher.utter_message(
-                text="""اختر واحد من ما يلي
-    1. مواعيد التسجيل 
-    2. البرامج المطروحة 
-    3. جامعات القبول المباشر
-    4. مدارس التوطين / الامتياز
-    5. التواصل مع المؤسسات 
-    6. طلبة الدور الثاني 
-    7. طلبة الاعاقة
-    8. خريجي الشهادات الاجنبية 
-    9. خريجي الشهادات السعودية
-    10. خريجي الشهادات الامريكية
-    11. اسئلة عن التسجيل
-    الرجاء كتابة "0" للعودة إلى القائمة الرئيسية ، واكتب "خروج" للخروج من المحادثة"""
+                response="utter_choose_registration"
 
             )
         elif main_menu_option == "2":
@@ -1467,212 +1570,806 @@ class ActionSubmitMainMenuForm(Action):
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         main_menu_option = tracker.get_slot("main_menu")
         sub_menu_option = tracker.get_slot("sub_menu")
-
+        educational_menu_option = tracker.get_slot("educational_menu")
         print(20 * "-")
         print("In action_submit_main_menu_form")
         print("main_menu_option: ", main_menu_option)
         print("sub_menu_option: ", sub_menu_option)
+        print("educational_menu_option",educational_menu_option)
         print(20 * "-")
 
         # Others
-        if main_menu_option == "8":
-            dispatcher.utter_message(
-                response="utter_other_option"
-            )
-            return [AllSlotsReset(), Restarted()]
-
-        if main_menu_option == "7":
-            return [AllSlotsReset(), Restarted(), FollowupAction("seventh_menu_form")]
-
-        # 1 new options
-        # Option 1.6
-        if main_menu_option == "1" and sub_menu_option == "6":
-            dispatcher.utter_message(
-                response="utter_secound_round_student"
-            )
-            return [AllSlotsReset(), Restarted()]
-
-        # Option 1.7
-        if main_menu_option == "1" and sub_menu_option == "7":
-            dispatcher.utter_message(
-                response="utter_student_with_disability"
-
-            )
-            return [AllSlotsReset(), Restarted()]
-
-        # Option 1.8
-        if main_menu_option == "1" and sub_menu_option == "8":
-            dispatcher.utter_message(
-                response="utter_foreign_graduate_certificate"
-            )
-            return [AllSlotsReset(), Restarted()]
-
-        # Option 1.9
-        if main_menu_option == "1" and sub_menu_option == "9":
-            dispatcher.utter_message(
-                response="utter_saudi_graduate_certificate"
-            )
-            return [AllSlotsReset(), Restarted()]
-
-        # Option 1.10
-        if main_menu_option == "1" and sub_menu_option == "10":
-            dispatcher.utter_message(
-                response="utter_american_graduate_certificate"            )
-            return [AllSlotsReset(), Restarted()]
-
-        # Simple Messages
-        if sub_menu_option == "1":
-            if main_menu_option == "1":
+        if tracker.get_slot("major_menu") == "2":
+            if (educational_menu_option) == "1":
                 dispatcher.utter_message(
-                    response="utter_registration_date"
+                    text="""1:- مدة الدراسة لجميع التخصصات المطروحة عام دراسي واحد موزعة بين فصلين دراسين بما فيه الفصل الصيفي (يعتمد على البرنامج المعتمد في كل جامعة).
+2:- يمنح المرشح بعد اجتياز برنامج التأهيل التربوي حسب نظام كل جامعة درجة دبلوم التأهيل التربوي
+3:- لابد من اجتياز الإختبار التخصصي والمقابلة الشخصية والفحص الطبي 
+4:- يسمح بتأجيل البرنامج بعد القبول حسب  اللوائح الأكاديمية بكل جامعة ، علماً بأنه في حال  قيام المتقدم  بالتأجيل فإن مقعده الدراسي في السنة القادمة غير مضمون بسب إختلاف طرح التخصصات من سنة إلى أخرى.
+
+اكتب 1 للعودة إلى القائمة الرئيسية ، أو اكتب "خروج" للخروج من المحادثة
+"""
+                )
+                return [
+                AllSlotsReset(), Restarted(),
+                SlotSet(key="educational_menu", value=None),
+                SlotSet(key="major_menu", value=None)
+            ]
+              
+            if (educational_menu_option) == "2":
+                return [AllSlotsReset(), Restarted(), FollowupAction("educational_registration_form")]
+#                 dispatcher.utter_message(
+#                     text="""1:- شروط التسجيل
+# http://res.cloudinary.com/dd7uuyovs/image/upload/v1643609493/mohe-faq/kzzdnxef7slfcvno4mk6.pdf
+
+# 2:- مواعيد التسجيل
+# http://res.cloudinary.com/dd7uuyovs/image/upload/v1643609711/mohe-faq/mysguaplfqr1vrnmnc4n.pdf
+
+# 3:- طريقة التسجيل
+# http://res.cloudinary.com/dd7uuyovs/image/upload/v1643609826/mohe-faq/c2qifqudhfvairislkv4.pdf
+
+# المستندات المطلوبة:
+# يتوجب على المتقدم رفع جميع المستندات المطلوبة بإحدى الصيغتين PDF أو JPG  وأن لا يزيد حجم المستند عن kb800 على ان تكون  المستندات واضحة  ومكتملة. 
+# المستندات المطلوبة هي 
+# * الجامعية الأولى مصدقة من الجهات الرسمية للخريجين من داخل السلطنة.
+# * الشهادة الجامعية الأولى من خارج السلطنة. 
+# * نسخة من شهادة المعادلة الصادرة من وزارة التعليم العالي والبحث العلمي والابتكار للخريجين خارج السلطنة .
+# * كشف الدرجات للدرجة الجامعية الأولى مصدق منالجهة التي تخرج منها الطالب . 
+# * شهادة اللغة الإنجليزية الدولية ACADEMIC IELTS أو  TOFEFL .  
+# * صورة شخصية حديثة ملونه مقاس  6*4.
+
+# 4:- البرامج المطروحة والعدد المستهدف
+# http://res.cloudinary.com/dd7uuyovs/image/upload/v1643610000/mohe-faq/iuwzovmzchzu35iam9sh.pdf
+
+# 5:- الجامعات المطروح بها البرنامج والتكلفة
+# http://res.cloudinary.com/dd7uuyovs/image/upload/v1643610054/mohe-faq/tqjst1dxaowkraqgwr0l.pdf
+
+# 6:- عناوين المؤسسات
+# http://res.cloudinary.com/dd7uuyovs/image/upload/v1643610116/mohe-faq/movqaq9sghbsqpufbymr.pdf
+
+# اكتب 1 للعودة إلى القائمة الرئيسية ، أو اكتب "خروج" للخروج من المحادثة
+# """
+#                 )
+#                 return [
+#                 AllSlotsReset(), Restarted(),
+#                 SlotSet(key="educational_menu", value=None),
+#                 SlotSet(key="major_menu", value=None)
+#             ]
+                
+            if (educational_menu_option) == "3":
+                dispatcher.utter_message(
+                    text="""اختبار القبول لبرنامج دبلوم التأهيل التربوي يتم تنفيذه على مدى يومين بجامعة السلطان قابوس وستعلن مواعيد الاختبارات لاحقا، ويركز على التخصص الدقيق للمتقدم، وقياس المهارات العلمية المتعددة التي اكتسبها أثناء دراسته الجامعية .وينفذ الاختبار الكترونيا لجميع التخصصات، وسوف تكون النتائج واضحة بعد الاختبار الالكتروني مباشرة 
+      
+سوف تجرى المقابلة الشخصية للمرشحين  بعد نتائج اجتياز الإختبار التخصصي وستعلن لاحقا مواعيد المقابلات،  علماًبأن المقابلة سوف تركز على المهارات الشخصية والمهارات التربوية
+
+اكتب 1 للعودة إلى القائمة الرئيسية ، أو اكتب "خروج" للخروج من المحادثة
+"""
+                )
+                return [
+                AllSlotsReset(), Restarted(),
+                SlotSet(key="educational_menu", value=None),
+                SlotSet(key="major_menu", value=None)
+            ]
+             
+            if (educational_menu_option) == "4":
+                dispatcher.utter_message(
+                    text="""سوف يتم إعلان نتائج المقبولين لاحقاً .
+وسيتم توزيع المقبولين على مقاعد الدراسة وفقاً لتسلسل رغبات المتقدمين والطاقة الاستيعابية للجامعات المقدمة للبرنامج والأعداد المستهدفة للقبول والمعتمدة من وزارة التربية والتعليم.
+وتتم المفاضلة  في القبول على أعلى درجة في الاختبار التخصصي ، ثم الـذي يليه  وفي حالة التساوي في نتائج الاختبار التخصصي تكون الأولوية للأكبر سناً ثم الأسبق حصولاً على المؤهل  في حدود الطاقة الاستيعابية المحددة لكل تخصص من قبل الجامعات
+
+اكتب 1 للعودة إلى القائمة الرئيسية ، أو اكتب "خروج" للخروج من المحادثة
+"""
+                )
+                return [
+                AllSlotsReset(), Restarted(),
+                SlotSet(key="educational_menu", value=None),
+                SlotSet(key="major_menu", value=None)
+            ]
+            if (educational_menu_option) == "5":
+                return [AllSlotsReset(), Restarted(), FollowupAction("support_educational_form")]
+            
+            if (educational_menu_option) == "6":
+                dispatcher.utter_message(
+                    text="""سوف تتوفر البيانات لاحقا
+اكتب 1 للعودة إلى القائمة الرئيسية ، أو اكتب "خروج" للخروج من المحادثة
+"""
+                )
+                return [
+                AllSlotsReset(), Restarted(),
+                SlotSet(key="educational_menu", value=None),
+                SlotSet(key="major_menu", value=None)
+            ]
+
+        if tracker.get_slot("major_menu") == "1":
+            if main_menu_option == "8":
+                dispatcher.utter_message(
+                    response="utter_other_option"
+                )
+                return [AllSlotsReset(), Restarted()]
+                # return [AllSlotsReset(), Restarted(), FollowupAction("post_scrapper_form")]
+
+            if main_menu_option == "7":
+                return [AllSlotsReset(), Restarted(), FollowupAction("seventh_menu_form")]
+
+            # 1 new options
+            # Option 1.6
+            if main_menu_option == "1" and sub_menu_option == "6":
+                dispatcher.utter_message(
+                    response="utter_secound_round_student"
+                )
+                return [AllSlotsReset(), Restarted()]
+
+            # Option 1.7
+            if main_menu_option == "1" and sub_menu_option == "7":
+                dispatcher.utter_message(
+                    response="utter_student_with_disability"
 
                 )
-            elif main_menu_option == "2":
+                return [AllSlotsReset(), Restarted()]
+
+            # Option 1.8
+            if main_menu_option == "1" and sub_menu_option == "8":
                 dispatcher.utter_message(
-                    response="utter_desire_modify_date"
+                    response="utter_foreign_graduate_certificate"
                 )
-            elif main_menu_option == "3":
+                return [AllSlotsReset(), Restarted()]
+
+            # Option 1.9
+            if main_menu_option == "1" and sub_menu_option == "9":
                 dispatcher.utter_message(
-                    response="utter_test_date"
+                    response="utter_saudi_graduate_certificate"
                 )
-                return [AllSlotsReset(), Restarted(), FollowupAction('select_test_by_form')]
-            elif main_menu_option == "4":
+                return [AllSlotsReset(), Restarted()]
+
+            # Option 1.10
+            if main_menu_option == "1" and sub_menu_option == "10":
                 dispatcher.utter_message(
-                    response="utter_first_screening_date"
-                )
-            elif main_menu_option == "5":
+                    response="utter_american_graduate_certificate"            )
+                return [AllSlotsReset(), Restarted()]
+
+            # Simple Messages
+            if sub_menu_option == "1":
+                if main_menu_option == "1":
+                    dispatcher.utter_message(
+                        response="utter_registration_date"
+
+                    )
+                elif main_menu_option == "2":
+                    dispatcher.utter_message(
+                        response="utter_desire_modify_date"
+                    )
+                elif main_menu_option == "3":
+                    dispatcher.utter_message(
+                        response="utter_test_date"
+                    )
+                    return [AllSlotsReset(), Restarted(), FollowupAction('select_test_by_form')]
+                elif main_menu_option == "4":
+                    dispatcher.utter_message(
+                        response="utter_first_screening_date"
+                    )
+                elif main_menu_option == "5":
+                    dispatcher.utter_message(
+                        response="utter_second_screening_date"
+                    )
+                elif main_menu_option == "6":
+                    dispatcher.utter_message(
+                        response="utter_support_date"
+                    )
+                return [AllSlotsReset(), Restarted()]
+
+            # Linking SEARCH programs CON
+            if main_menu_option in ["1", "2"] and sub_menu_option == "2":
+                return [AllSlotsReset(), FollowupAction("select_program_by_form")]
+
+            # Linking SEARCH programs COde
+            if main_menu_option == "5" and sub_menu_option == "3":
+                return [AllSlotsReset(), FollowupAction("search_program_code_form")]
+    
+            # Linking cutoffmark for first sort
+            if main_menu_option == "4" and sub_menu_option == "3":
+                return [AllSlotsReset(), FollowupAction("programcode_cutoff_form")]
+
+            # result
+            if main_menu_option in ["4", "5"] and sub_menu_option == "4":
                 dispatcher.utter_message(
-                    response="utter_second_screening_date"
+                    response="utter_complete_registration"
                 )
-            elif main_menu_option == "6":
+                return [AllSlotsReset(), Restarted()]
+
+            # faq
+            if main_menu_option == "1" and sub_menu_option == "11":
                 dispatcher.utter_message(
-                    response="utter_support_date"
+                    response="utter_registration_question"
                 )
-            return [AllSlotsReset(), Restarted()]
-
-        # Linking SEARCH programs CON
-        if main_menu_option in ["1", "2"] and sub_menu_option == "2":
-            return [AllSlotsReset(), FollowupAction("select_program_by_form")]
-
-        # Linking SEARCH programs COde
-        if main_menu_option == "5" and sub_menu_option == "3":
-            return [AllSlotsReset(), FollowupAction("search_program_code_form")]
- 
-        # Linking cutoffmark for first sort
-        if main_menu_option == "4" and sub_menu_option == "3":
-            return [AllSlotsReset(), FollowupAction("programcode_cutoff_form")]
-
-        # result
-        if main_menu_option in ["4", "5"] and sub_menu_option == "4":
-            dispatcher.utter_message(
-                response="utter_complete_registration"
-            )
-            return [AllSlotsReset(), Restarted()]
-
-        # faq
-        if main_menu_option == "1" and sub_menu_option == "11":
-            dispatcher.utter_message(
-                response="utter_registration_question"
-            )
-            return [AllSlotsReset(), Restarted()]
-        if main_menu_option == "2" and sub_menu_option == "5":
-            dispatcher.utter_message(
-                response="utter_modify_desire_question"
-            )
-            return [AllSlotsReset(), Restarted()]
-        if main_menu_option == "3" and sub_menu_option == "3":
-            dispatcher.utter_message(
-                response="utter_test_question"
-            )
-            return [AllSlotsReset(), Restarted()]
-        if main_menu_option in ["4", "5"] and sub_menu_option == "5":
-            dispatcher.utter_message(
-                response="utter_screeing_question"
-            )
-            return [AllSlotsReset(), Restarted()]
-        if main_menu_option == "6" and sub_menu_option == "3":
-            dispatcher.utter_message(
-                response="utter_support_question"
-            )
-            return [AllSlotsReset(), Restarted()]
-        if main_menu_option in ["4"] and sub_menu_option == "2":
-            # dispatcher.utter_message(
-            #     text="""سوف يتم لاحقا عرض نتائج الفرز"""
-            # )
-            return [AllSlotsReset(), Restarted(), FollowupAction('offer_form'), SlotSet("main_menu", "1")]
-        if main_menu_option in ["5"] and sub_menu_option == "2":
-            # dispatcher.utter_message(
-            #     text="""سوف يتم لاحقا عرض نتائج الفرز"""
-            # )
-            return [AllSlotsReset(), Restarted(), FollowupAction('offer_form'), SlotSet("main_menu", "2")]
-
-        # institute Search
-        if main_menu_option in ["1", "3"] and sub_menu_option in ["2"]:
-            dispatcher.utter_message(
-                response="utter_communicate_institue"
-            )
-            return [AllSlotsReset(), Restarted()]
-        if main_menu_option in ["1"] and sub_menu_option in ["5"]:
-            dispatcher.utter_message(
-                response="utter_communicate_institue"
-            )
-            return [AllSlotsReset(), Restarted()]
-        if main_menu_option in ["3"] and sub_menu_option in ["5"]:
-            dispatcher.utter_message(
-                response="utter_communicate_institue"
-            )
-            return [AllSlotsReset(), Restarted()]
-        # Direct Entry program
-        if main_menu_option in ["1", "2"] and sub_menu_option == "3":
-            # dispatcher.utter_message(
-            #     text="رمز البرنامج DE001 :اسم البرنامج: Direct Entry Scholarship :المجال المعرفي: غير محدد :نوع "
-            #          "البرنامج: بعثة خارجية :اسم المؤسسة التعليمية : دائرة البعثات الخارجية :بلد الدراسة : دول مختلفة "
-            #          ":فئة الطلبة : غير اعاقة "
-            # )
-            dispatcher.utter_message(text=
-            """سوف يتم تحديث القائمة للعام الأكاديمي 2023/2022 في وقت لاحق"""
-            )
-            #return [AllSlotsReset(), Restarted(), FollowupAction("direct_entry_program_form")]
-        if main_menu_option in ["1", "2"] and sub_menu_option == "4":
-            return [AllSlotsReset(), FollowupAction("school_middleware_form")]
-
-        # Desired Options:
-        if main_menu_option == "6" and sub_menu_option == "2":
-            opt = tracker.get_slot("desired_service")
-            if opt == "1":
+                return [AllSlotsReset(), Restarted()]
+            if main_menu_option == "2" and sub_menu_option == "5":
                 dispatcher.utter_message(
-                    text="""
-1:- تقديم طلب استعادة مقعد دراسي
-https://youtu.be/JG6NskPaDZk
-
-2:- تقديم طلب اساءة ترتيب الاختيار
-https://www.youtube.com/watch?v=AKOLmPZJhR4"""
+                    response="utter_modify_desire_question"
                 )
-            elif opt == "2":
+                return [AllSlotsReset(), Restarted()]
+            if main_menu_option == "3" and sub_menu_option == "3":
                 dispatcher.utter_message(
-                    text="""
-1:- تقديم طلب استعادة مقعد دراسي
-https://youtu.be/JG6NskPaDZk
-
-2:- تقديم طلب اساءة ترتيب الاختيار
-https://www.youtube.com/watch?v=AKOLmPZJhR4"""
+                    response="utter_test_question"
                 )
-            else:
+                return [AllSlotsReset(), Restarted()]
+            if main_menu_option in ["4", "5"] and sub_menu_option == "5":
                 dispatcher.utter_message(
-                    text="""
-1:- تقديم طلب استعادة مقعد دراسي
-https://youtu.be/JG6NskPaDZk
-
-2:- تقديم طلب اساءة ترتيب الاختيار
-https://www.youtube.com/watch?v=AKOLmPZJhR4"""
+                    response="utter_screeing_question"
                 )
+                return [AllSlotsReset(), Restarted()]
+            if main_menu_option == "6" and sub_menu_option == "3":
+                dispatcher.utter_message(
+                    response="utter_support_question"
+                )
+                return [AllSlotsReset(), Restarted()]
+            if main_menu_option in ["4"] and sub_menu_option == "2":
+                # dispatcher.utter_message(
+                #     text="""سوف يتم لاحقا عرض نتائج الفرز"""
+                # )
+                return [AllSlotsReset(), Restarted(), FollowupAction('offer_form'), SlotSet("main_menu", "1")]
+            if main_menu_option in ["5"] and sub_menu_option == "2":
+                # dispatcher.utter_message(
+                #     text="""سوف يتم لاحقا عرض نتائج الفرز"""
+                # )
+                return [AllSlotsReset(), Restarted(), FollowupAction('offer_form'), SlotSet("main_menu", "2")]
+
+            # institute Search
+            if main_menu_option in ["1", "3"] and sub_menu_option in ["2"]:
+                dispatcher.utter_message(
+                    response="utter_communicate_institue"
+                )
+                return [AllSlotsReset(), Restarted()]
+            if main_menu_option in ["1"] and sub_menu_option in ["5"]:
+                dispatcher.utter_message(
+                    response="utter_communicate_institue"
+                )
+                return [AllSlotsReset(), Restarted()]
+            if main_menu_option in ["3"] and sub_menu_option in ["5"]:
+                dispatcher.utter_message(
+                    response="utter_communicate_institue"
+                )
+                return [AllSlotsReset(), Restarted()]
+            # Direct Entry program
+            if main_menu_option in ["1", "2"] and sub_menu_option == "3":
+                # dispatcher.utter_message(
+                #     text="رمز البرنامج DE001 :اسم البرنامج: Direct Entry Scholarship :المجال المعرفي: غير محدد :نوع "
+                #          "البرنامج: بعثة خارجية :اسم المؤسسة التعليمية : دائرة البعثات الخارجية :بلد الدراسة : دول مختلفة "
+                #          ":فئة الطلبة : غير اعاقة "
+                # )
+                dispatcher.utter_message(text=
+                """سوف يتم تحديث القائمة للعام الأكاديمي 2023/2022 في وقت لاحق"""
+                )
+                # return [AllSlotsReset(), Restarted(), FollowupAction("direct_entry_program_form")]
+            if main_menu_option in ["1", "2"] and sub_menu_option == "4":
+                return [AllSlotsReset(), FollowupAction("school_middleware_form")]
+
+            # Desired Options:
+            if main_menu_option == "6" and sub_menu_option == "2":
+                opt = tracker.get_slot("desired_service")
+                if opt == "1":
+                    dispatcher.utter_message(
+                        text="""
+    1:- تقديم طلب استعادة مقعد دراسي
+    https://youtu.be/JG6NskPaDZk
+
+    2:- تقديم طلب اساءة ترتيب الاختيار
+    https://www.youtube.com/watch?v=AKOLmPZJhR4"""
+                    )
+                elif opt == "2":
+                    dispatcher.utter_message(
+                        text="""
+    1:- تقديم طلب استعادة مقعد دراسي
+    https://youtu.be/JG6NskPaDZk
+
+    2:- تقديم طلب اساءة ترتيب الاختيار
+    https://www.youtube.com/watch?v=AKOLmPZJhR4"""
+                    )
+                else:
+                    dispatcher.utter_message(
+                        text="""
+    1:- تقديم طلب استعادة مقعد دراسي
+    https://youtu.be/JG6NskPaDZk
+
+    2:- تقديم طلب اساءة ترتيب الاختيار
+    https://www.youtube.com/watch?v=AKOLmPZJhR4"""
+                    )
+
+                return [AllSlotsReset(), Restarted()]
+
+            # dispatcher.utter_message(text="End Of main_menu")
 
             return [AllSlotsReset(), Restarted()]
 
-        #dispatcher.utter_message(text="End Of main_menu")
+class ValidateSupportEducationalForm(FormValidationAction):
+    def name(self) -> Text:
+        return "validate_support_educational_form"
 
-        return [AllSlotsReset(), Restarted()]
+    async def required_slots(
+            self,
+            slots_mapped_in_domain: List[Text],
+            dispatcher: "CollectingDispatcher",
+            tracker: "Tracker",
+            domain: "DomainDict",
+    ) -> List[Text]:
 
+
+        return ["support_educational"]
+
+    async def validate_support_educational(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+        # if slot_value.lower() == "0":
+        #     current_slot = "support_educational"
+        #     req_s = await self.required_slots(
+        #         self.slots_mapped_in_domain(domain), dispatcher, tracker, domain
+        #     )
+        #     last_slot = req_s[req_s.index(current_slot) - 2]
+        #     return {
+        #         last_slot: None,
+        #         current_slot: None
+        #     }
+        if slot_value in ["1", "2"]:
+            return {
+                "support_educational": slot_value
+            }
+        return {
+            "support_educational": None
+        }
+
+class ValidateEducationalRegistrationForm(FormValidationAction):
+    def name(self) -> Text:
+        return "validate_educational_registration_form"
+
+    async def required_slots(
+            self,
+            slots_mapped_in_domain: List[Text],
+            dispatcher: "CollectingDispatcher",
+            tracker: "Tracker",
+            domain: "DomainDict",
+    ) -> List[Text]:
+
+
+        return ["educational_registration"]
+
+    async def validate_educational_registration(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+        options_list = [str(i) for i in list(range(1, 9))]
+        # if slot_value.lower() == "0":
+        #     current_slot = "support_educational"
+        #     req_s = await self.required_slots(
+        #         self.slots_mapped_in_domain(domain), dispatcher, tracker, domain
+        #     )
+        #     last_slot = req_s[req_s.index(current_slot) - 2]
+        #     return {
+        #         last_slot: None,
+        #         current_slot: None
+        #     }
+        if slot_value in options_list:
+            return {
+                "educational_registration": slot_value
+            }
+        return {
+            "educational_registration": None
+        }
+
+class ActionSupportEducationalForm(Action):
+
+    def name(self) -> Text:
+        return "action_submit_support_educational_form"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        # educational_menu_option = tracker.get_slot("educational_menu")
+        support_option = tracker.get_slot("support_educational")
+
+        # main_menu: 3 seventh_year: 2
+        if support_option == "1":
+            dispatcher.utter_message(
+                text="""هناك مرحلتين للتظلمات الأولى عن مرحلة التسجيل والثانية عن نتائج القبول.
+سوف يتم الإعلان عن مواعيد التقديم لاحقاً
+
+              اكتب "خروج" للخروج من المحادثة أو اكتب "1" للعودة إلى القائمة الرئيسية
+                """           )
+        if support_option == "2":
+            dispatcher.utter_message(
+                text="""1:- الية تقديم طلب التظلم
+                http://res.cloudinary.com/dd7uuyovs/image/upload/v1644755590/mohe-faq/x3lx3bm6st3eeqnwpyjo.pdf
+             اكتب "خروج" للخروج من المحادثة أو اكتب "1" للعودة إلى القائمة الرئيسية
+             """   
+                     )
+        return [
+                AllSlotsReset(), Restarted(),
+                SlotSet(key="support_educational", value=None)
+            ]
+
+class ActionEducationalRegistrationForm(Action):
+
+    def name(self) -> Text:
+        return "action_submit_educational_registration_form"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        support_option = tracker.get_slot("educational_registration")
+
+        if support_option == "1":
+            dispatcher.utter_message(
+                text="""1:- شروط التسجيل
+                http://res.cloudinary.com/dd7uuyovs/image/upload/v1644746292/mohe-faq/siv4046osgzfsybwg3im.pdf
+              اكتب "خروج" للخروج من المحادثة أو اكتب "1" للعودة إلى القائمة الرئيسية
+                """           )
+            return [
+                AllSlotsReset(), Restarted(),
+                SlotSet(key="educational_registration", value=None),
+                SlotSet(key="major_menu", value=None)
+            ]
+        if support_option == "2":
+            dispatcher.utter_message(
+                text="""1:- مواعيد التسجيل
+                http://res.cloudinary.com/dd7uuyovs/image/upload/v1644746378/mohe-faq/lhbcjm6sxikadnhhqzvo.pdf
+             
+             اكتب "خروج" للخروج من المحادثة أو اكتب "1" للعودة إلى القائمة الرئيسية
+             """   
+                     )
+            return [
+                AllSlotsReset(), Restarted(),
+                SlotSet(key="educational_registration", value=None),
+                SlotSet(key="major_menu", value=None)
+            ]
+        if support_option == "3":
+            dispatcher.utter_message(
+                text="""1:- طريقة التسجيل
+                http://res.cloudinary.com/dd7uuyovs/image/upload/v1644746413/mohe-faq/eyln2oeuktu5sl2jhslb.pdf
+             
+             اكتب "خروج" للخروج من المحادثة أو اكتب "1" للعودة إلى القائمة الرئيسية
+             """   
+                     )
+            return [
+                AllSlotsReset(), Restarted(),
+                SlotSet(key="educational_registration", value=None),
+                SlotSet(key="major_menu", value=None)
+            ]
+        if support_option == "4":
+            dispatcher.utter_message(
+                text="""المستندات المطلوبة:
+يتوجب على المتقدم رفع جميع المستندات المطلوبة بإحدى الصيغتين PDF أو JPG  وأن لا يزيد حجم المستند عن kb800 على ان تكون  المستندات واضحة  ومكتملة. 
+المستندات المطلوبة هي 
+ * الجامعية الأولى مصدقة من الجهات الرسمية للخريجين من داخل السلطنة.
+ * الشهادة الجامعية الأولى من خارج السلطنة. 
+ * نسخة من شهادة المعادلة الصادرة من وزارة التعليم العالي والبحث العلمي والابتكار للخريجين خارج السلطنة .
+ * كشف الدرجات للدرجة الجامعية الأولى مصدق منالجهة التي تخرج منها الطالب . 
+ * شهادة اللغة الإنجليزية لتخصص اللغة الإنجليزية فقط  ACADEMIC IELTS أو  TOFEFL .  
+ * صورة شخصية حديثة ملونه مقاس  6*4.
+
+             
+             اكتب "خروج" للخروج من المحادثة أو اكتب "1" للعودة إلى القائمة الرئيسية
+             """   
+                     )
+            return [
+                AllSlotsReset(), Restarted(),
+                SlotSet(key="educational_registration", value=None),
+                SlotSet(key="major_menu", value=None)
+            ]
+        if support_option == "5":
+            dispatcher.utter_message(
+                text="""1:- البرامج المطروحة والعدد المستهدف
+                http://res.cloudinary.com/dd7uuyovs/image/upload/v1643610000/mohe-faq/iuwzovmzchzu35iam9sh.pdf
+
+             
+             اكتب "خروج" للخروج من المحادثة أو اكتب "1" للعودة إلى القائمة الرئيسية
+             """   
+                     )
+            return [
+                AllSlotsReset(), Restarted(),
+                SlotSet(key="educational_registration", value=None),
+                SlotSet(key="major_menu", value=None)
+            ]
+        if support_option == "6":
+            dispatcher.utter_message(
+                text="""1:- الجامعات المطروح بها البرنامج والتكلفة
+
+                http://res.cloudinary.com/dd7uuyovs/image/upload/v1643610054/mohe-faq/tqjst1dxaowkraqgwr0l.pdf
+             
+             اكتب "خروج" للخروج من المحادثة أو اكتب "1" للعودة إلى القائمة الرئيسية
+             """   
+                     )
+            return [
+                AllSlotsReset(), Restarted(),
+                SlotSet(key="educational_registration", value=None),
+                SlotSet(key="major_menu", value=None)
+            ]
+        if support_option == "7":
+            dispatcher.utter_message(
+                text="""1:- عناوين المؤسسات
+
+                http://res.cloudinary.com/dd7uuyovs/image/upload/v1643610116/mohe-faq/movqaq9sghbsqpufbymr.pdf
+
+             
+             اكتب "خروج" للخروج من المحادثة أو اكتب "1" للعودة إلى القائمة الرئيسية
+             """   
+                     )
+            return [
+                AllSlotsReset(), Restarted(),
+                SlotSet(key="educational_registration", value=None),
+                SlotSet(key="major_menu", value=None)
+            ]
+        if support_option == "8":
+                return [AllSlotsReset(), Restarted(), FollowupAction("qualification_major_form")]
+
+class ValidateQualificationMajorForm(FormValidationAction):
+    def name(self) -> Text:
+        return "validate_qualification_major_form"
+
+    async def required_slots(
+            self,
+            slots_mapped_in_domain: List[Text],
+            dispatcher: "CollectingDispatcher",
+            tracker: "Tracker",
+            domain: "DomainDict",
+    ) -> List[Text]:
+
+
+        return ["compatible_graduates","majors","university_location","university","subspeciality"]
+
+    async def validate_compatible_graduates(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+        # options_list = [str(i) for i in list(range(1, 9))]
+        # if slot_value.lower() == "0":
+        #     current_slot = "support_educational"
+        #     req_s = await self.required_slots(
+        #         self.slots_mapped_in_domain(domain), dispatcher, tracker, domain
+        #     )
+        #     last_slot = req_s[req_s.index(current_slot) - 2]
+        #     return {
+        #         last_slot: None,
+        #         current_slot: None
+        #     }
+        # if slot_value in options_list:
+        return {
+            "compatible_graduates": slot_value
+        }
+    # return {
+    #     "compatible_graduates": None
+    # }
+
+    async def validate_majors(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+
+        return {
+            "majors": slot_value
+        }
+    async def validate_university_location(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+
+        return {
+            "university_location": slot_value
+        }
+    async def validate_university(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+
+        return {
+            "university": slot_value
+        }
+    async def validate_subspeciality(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+
+        return {
+            "subspeciality": slot_value
+        }
+class AskForSelectcomaptibleGraduatesaction(Action):
+    def name(self) -> Text:
+        return "action_ask_compatible_graduates"
+
+    def run(
+            self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+      
+        dispatcher.utter_message(text="""
+1. تخصصات الخرجين المتوافقة مع التخصص المطلوب للتأهيل التربوي  
+2. تخصصات الخرجين الغير متوافقة مع التخصص المطلوب للتأهيل التربوي  
+"""
+        )
+        return []
+
+class AskForSelectmajorsaction(Action):
+    def name(self) -> Text:
+        return "action_ask_majors"
+
+    def run(
+            self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+      
+        majors = []
+        if tracker.get_slot("compatible_graduates") == "1":
+            for major in agree_inside.agree_inside:
+                if major["major_type"] == "Inside Oman":
+                    majors.append((str(major["major_option"]), major["major_name"]))
+        
+        elif tracker.get_slot("compatible_graduates") == "2":
+            for major in nonagree_inside.nonagree_inside:
+                if major["major_type"] == "Inside Oman":
+                    majors.append((str(major["major_option"]), major["major_name"]))
+
+        print("majors list", majors)
+
+        options_list = ""
+        for col in majors:
+            options_list += "{}. {}\n".format(col[0], col[1])
+        dispatcher.utter_message(text=f"الرجاء الاختيار من الكليات أدناه: \n"
+                                        f"{options_list} \n"
+                                        f"اكتب '0' للعودة إلى الخيار الثمين واكتب 'خروج' للخروج من المحادثة")
+        return []
+
+class AskForSelectUniverLocationaction(Action):
+    def name(self) -> Text:
+        return "action_ask_university_location"
+
+    def run(
+            self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+      
+        dispatcher.utter_message(text="""
+1. داخل عمان                                     
+2. خارج عمان
+"""
+        )
+        return []
+
+class AskForSelectUniversity(Action):
+    def name(self) -> Text:
+        return "action_ask_university"
+
+    def run(
+            self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+
+        if tracker.get_slot("university_location") == "1" and tracker.get_slot("compatible_graduates") == "1":  # select Public School
+            univ_type = "Inside Oman"
+            major_data1 = agree_inside.agree_inside
+        elif tracker.get_slot("university_location") == "2" and tracker.get_slot("compatible_graduates") == "1":
+            univ_type = "Outside Oman"
+            major_data1 = agree_outside.agree_outside
+        elif tracker.get_slot("university_location") == "1" and tracker.get_slot("compatible_graduates") == "2":
+            univ_type = "Inside Oman"
+            major_data1 = nonagree_inside.nonagree_inside
+        elif tracker.get_slot("university_location") == "2" and tracker.get_slot("compatible_graduates") == "1":
+            univ_type = "Outside Oman"
+            major_data1 = nonagree_outside.nonagree_outside
+        else:
+            return []
+        print("univ_type = ", univ_type)
+        major_options = tracker.get_slot("majors")
+        # college_option = tracker.get_slot("select_oman_public_college") or \
+        #                  tracker.get_slot("select_oman_private_college")
+        # print("college_option = ", college_option)
+
+        major = {}
+        for item in major_data1:
+            print("item = ", item["major_type"], item["major_option"])
+            if item["major_type"] == univ_type and str(item["major_option"]) == major_options:
+                major = item
+                break
+        print("major = ", major)
+
+        universities = []
+        for univ in major["university_available"]:
+            universities.append((str(univ["university_option"]), univ["university_name"]))
+        print("universities List", universities)
+
+        options_list = ""
+        for strm in universities:
+            options_list += "{}. {}\n".format(strm[0], strm[1])
+        dispatcher.utter_message(text=f"يرجى الاختيار من بين التدفقات المتاحة أدناه: \n"
+                                      f"{options_list} \n"
+                                      f"اكتب '0' للعودة إلى الخيار الثمين واكتب 'خروج' للخروج من المحادثة")
+        return []
+
+class AskForSelectsubspeciality(Action):
+    def name(self) -> Text:
+        return "action_ask_subspeciality"
+
+    def run(
+            self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+
+        if tracker.get_slot("university_location") == "1" and tracker.get_slot("compatible_graduates") == "1":  # select Public School
+            univ_type = "Inside Oman"
+            major_data1 = agree_inside.agree_inside
+        elif tracker.get_slot("university_location") == "2" and tracker.get_slot("compatible_graduates") == "1":
+            univ_type = "Outside Oman"
+            major_data1 = agree_outside.agree_outside
+        elif tracker.get_slot("university_location") == "1" and tracker.get_slot("compatible_graduates") == "2":
+            univ_type = "Inside Oman"
+            major_data1 = nonagree_inside.nonagree_inside
+        elif tracker.get_slot("university_location") == "2" and tracker.get_slot("compatible_graduates") == "1":
+            univ_type = "Outside Oman"
+            major_data1 = nonagree_outside.nonagree_outside
+        else:
+            return []
+        print("univ_type = ", univ_type)
+        major_options = tracker.get_slot("majors")
+
+        # college_option = tracker.get_slot("select_oman_public_college") or \
+        #                  tracker.get_slot("select_oman_private_college")
+        # print("college_option = ", college_option)
+
+        major = {}
+        for item in major_data1:
+            print("item = ", item["major_type"], item["major_option"])
+            if item["major_type"] == univ_type and str(item["major_option"]) == major_options:
+                major = item
+                break
+        print("major = ", major)
+
+        universities = []
+        for univ in major["university_available"]:
+            universities.append((str(univ["university_option"]), univ["university_name"]))
+        print("universities List", universities)
+
+        university = tracker.get_slot("university")
+        print("university = ", university)
+        subspeciality = []
+        for mjr in major["university_available"]:
+            if str(mjr["university_option"]) == university:
+                for prg in mjr["subspeciality_detail"]:
+                    subspeciality.append((str(prg["subspeciality_option"]), prg["subspeciality"]))
+                break
+        print("subspeciality List", subspeciality)
+
+        options_list = ""
+        for prg in subspeciality:
+            # options_list += "{}. {}\n".format(prg[0], prg[1])
+        # dispatcher.utter_message(text=f"لرجاء الاختيار من أدناه رمز البرنامج: \n"
+        #                               f"{options_list} \n"
+        #                               f"اكتب '0' للعودة إلى الخيار الثمين واكتب 'خروج' للخروج من المحادثة")
+            options_list += "{}\n".format(prg[1])
+            dispatcher.utter_message(text=f"{options_list} \n"
+                                      f"اكتب '0' للعودة إلى الخيار الثمين واكتب 'خروج' للخروج من المحادثة")
+        return []
 
 class ActionDefaultFallback(Action):
     def name(self) -> Text:
@@ -1696,12 +2393,12 @@ class ActionDefaultFallback(Action):
 
         if number_of_fallback == 1:
             senders_maintain["sender"] = 0
-            dispatcher.utter_message(
-                response="utter_default_fallback"
-            )
+            # dispatcher.utter_message(
+            #     response="utter_default_fallback"
+            # )
 
-            return [UserUtteranceReverted()]
-#            return [AllSlotsReset(), FollowupAction('humanhandoff_yesno_form')]
+            # return [UserUtteranceReverted()]
+            return [AllSlotsReset(), FollowupAction('humanhandoff_yesno_form')]
         else:
             dispatcher.utter_message(
                 response="utter_unidentified_input"
@@ -2430,6 +3127,16 @@ class ActionSubmitHumanhandoffYesNoForm(Action):
         return [AllSlotsReset(), Restarted()]
 
 
+class AskForMajorMenu(Action):
+    def name(self) -> Text:
+        return "action_ask_major_menu"
+
+    def run(
+            self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        dispatcher.utter_message(response="utter_major_menu_greets")
+        return []
+
 class AskForMainMenu(Action):
     def name(self) -> Text:
         return "action_ask_main_menu"
@@ -2440,6 +3147,15 @@ class AskForMainMenu(Action):
         dispatcher.utter_message(response="utter_main_menu_greets")
         return []
 
+class AskForEducationalMenu(Action):
+    def name(self) -> Text:
+        return "action_ask_educational_menu"
+
+    def run(
+            self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> List[EventType]:
+        dispatcher.utter_message(response="utter_eduactional_menu")
+        return []
 
 class ValidateSchoolMiddlewareForm(FormValidationAction):
     def name(self) -> Text:
