@@ -1,6 +1,6 @@
 nonagree_outside = [
     {
-        "major_type": "outside Oman",
+        "major_type": "Outside Oman",
         "major_name": " الاحياء",
         "major_option": 1,
         "university_available": [
@@ -71,7 +71,7 @@ nonagree_outside = [
         ]
     },
     {
-        "major_type": "outside Oman",
+        "major_type": "Outside Oman",
         "major_name": " الجغرافيا",
         "major_option": 2,
         "university_available": [
@@ -108,7 +108,7 @@ nonagree_outside = [
         ]
     },
     {
-        "major_type": "outside Oman",
+        "major_type": "Outside Oman",
         "major_name": "التربية الاسلامية",
         "major_option": 3,
         "university_available": [
@@ -125,7 +125,7 @@ nonagree_outside = [
         ]
     },
     {
-        "major_type": "outside Oman",
+        "major_type": "Outside Oman",
         "major_name": "الرياضيات",
         "major_option": 4,
         "university_available": [
@@ -162,7 +162,7 @@ nonagree_outside = [
         ]
     },
     {
-        "major_type": "outside Oman",
+        "major_type": "Outside Oman",
         "major_name": "الفنون التشكيلية",
         "major_option": 5,
         "university_available": [
@@ -179,7 +179,7 @@ nonagree_outside = [
         ]
     },
     {
-        "major_type": "outside Oman",
+        "major_type": "Outside Oman",
         "major_name": "الفيزياء",
         "major_option": 6,
         "university_available": [
@@ -216,7 +216,7 @@ nonagree_outside = [
         ]
     },
     {
-        "major_type": "outside Oman",
+        "major_type": "Outside Oman",
         "major_name": "الكيمياء",
         "major_option": 7,
         "university_available": [
@@ -283,7 +283,7 @@ nonagree_outside = [
         ]
     },
     {
-        "major_type": "outside Oman",
+        "major_type": "Outside Oman",
         "major_name": "اللغة إنجليزية",
         "major_option": 8,
         "university_available": [
@@ -300,7 +300,7 @@ nonagree_outside = [
         ]
     },
     {
-        "major_type": "outside Oman",
+        "major_type": "Outside Oman",
         "major_name": "تقنية المعلومات",
         "major_option": 9,
         "university_available": [

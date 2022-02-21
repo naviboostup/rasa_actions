@@ -39,12 +39,8 @@ agree_inside = [
                         "subspeciality_option": 5
                     },
                     {
-                        "subspeciality": "التقنيات الحيوية",
-                        "subspeciality_option": 5
-                    },
-                    {
                         "subspeciality": "بيولوجيا بيئية",
-                        "subspeciality_option": 7
+                        "subspeciality_option": 6
                     }
                 ]
             },
@@ -249,25 +245,8 @@ agree_inside = [
     },
     {
         "major_type": "Inside Oman",
-        "major_name": " تربية خاصة",
-        "major_option": 5,
-        "university_available": [
-            {
-                "university_name": "جامعة نزوى",
-                "university_option": 1,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "تربية خاصة - صعوبات التعلم",
-                        "subspeciality_option": 1
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "major_type": "Inside Oman",
         "major_name": " تقنية المعلومات",
-        "major_option": 6,
+        "major_option": 5,
         "university_available": [
             {
                 "university_name": "الجامعة العربية المفتوحة",
@@ -720,7 +699,7 @@ agree_inside = [
     {
         "major_type": "Inside Oman",
         "major_name": " رياضة مدرسية",
-        "major_option": 7,
+        "major_option": 6,
         "university_available": [
             {
                 "university_name": "جامعة السلطان قابوس",
@@ -746,25 +725,8 @@ agree_inside = [
     },
     {
         "major_type": "Inside Oman",
-        "major_name": " لغة فرنسية",
-        "major_option": 8,
-        "university_available": [
-            {
-                "university_name": "جامعة نزوى",
-                "university_option": 1,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "اللغة الفرنسية والترجمة",
-                        "subspeciality_option": 1
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "major_type": "Inside Oman",
         "major_name": " مادة الرياضيات",
-        "major_option": 9,
+        "major_option": 7,
         "university_available": [
             {
                 "university_name": "الكلية الحديثة للتجارة والعلوم",
@@ -829,7 +791,7 @@ agree_inside = [
     {
         "major_type": "Inside Oman",
         "major_name": "الفنون تشكيلية",
-        "major_option": 10,
+        "major_option": 8,
         "university_available": [
             {
                 "university_name": "الكلية العلمية للتصميم",
@@ -866,7 +828,7 @@ agree_inside = [
     {
         "major_type": "Inside Oman",
         "major_name": "الفيزياء",
-        "major_option": 11,
+        "major_option": 9,
         "university_available": [
             {
                 "university_name": "جامعة السلطان قابوس",
@@ -903,7 +865,7 @@ agree_inside = [
     {
         "major_type": "Inside Oman",
         "major_name": "الكيمياء",
-        "major_option": 12,
+        "major_option": 10,
         "university_available": [
             {
                 "university_name": "الكلية التقنية العليا",
@@ -962,7 +924,7 @@ agree_inside = [
     {
         "major_type": "Inside Oman",
         "major_name": "اللغة الإنجليزية",
-        "major_option": 13,
+        "major_option": 11,
         "university_available": [
             {
                 "university_name": "الجامعة العربية المفتوحة",
@@ -1117,7 +1079,7 @@ agree_inside = [
     {
         "major_type": "Inside Oman",
         "major_name": "اللغة العربية",
-        "major_option": 14,
+        "major_option": 12,
         "university_available": [
             {
                 "university_name": "جامعة السلطان قابس",
@@ -1182,7 +1144,7 @@ agree_inside = [
     {
         "major_type": "Inside Oman",
         "major_name": "مهارات موسيقية",
-        "major_option": 15,
+        "major_option": 13,
         "university_available": [
             {
                 "university_name": "جامعة السلطان قابوس",

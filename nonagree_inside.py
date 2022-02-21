@@ -1,4 +1,4 @@
-non_agree_inside = [
+nonagree_inside = [
     {
         "major_type": "Inside Oman",
         "major_name": " الاحياء",

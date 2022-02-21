@@ -928,7 +928,7 @@ class AskForSelectOmanPublicCollegeAction(Action):
             options_list = ""
             for col in colleges:
                 options_list += "{}. {}\n".format(col[0], col[1])
-            dispatcher.utter_message(text=f"الرجاء الاختيار من الخيارات أدناه\n:"
+            dispatcher.utter_message(text=f"الرجاء الاختيار من الخيارات أدناه:\n"
                                           f"{options_list} \n"
                                           f"اكتب '0' للعودة إلى الخيار الثمين واكتب 'خروج' للخروج من المحادثة"
                                      )
@@ -2107,8 +2107,8 @@ class ActionEducationalRegistrationForm(Action):
                 SlotSet(key="educational_registration", value=None),
                 SlotSet(key="major_menu", value=None)
             ]
-#        if support_option == "8":
-#                return [AllSlotsReset(), Restarted(), FollowupAction("qualification_major_form")]
+        if support_option == "8":
+                return [AllSlotsReset(), Restarted(), FollowupAction("qualification_major_form")]
 
 class ValidateQualificationMajorForm(FormValidationAction):
     def name(self) -> Text:
@@ -2123,7 +2123,7 @@ class ValidateQualificationMajorForm(FormValidationAction):
     ) -> List[Text]:
 
 
-        return ["compatible_graduates","majors","university_location","university","subspeciality"]
+        return ["compatible_graduates","university_location","majors","university","subspeciality"]
 
     async def validate_compatible_graduates(
             self,
@@ -2152,18 +2152,6 @@ class ValidateQualificationMajorForm(FormValidationAction):
     #     "compatible_graduates": None
     # }
 
-    async def validate_majors(
-            self,
-            slot_value: Any,
-            dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: DomainDict,
-    ) -> Dict[Text, Any]:
-        slot_value = convert_number(slot_value)
-
-        return {
-            "majors": slot_value
-        }
     async def validate_university_location(
             self,
             slot_value: Any,
@@ -2173,10 +2161,24 @@ class ValidateQualificationMajorForm(FormValidationAction):
     ) -> Dict[Text, Any]:
         slot_value = convert_number(slot_value)
 
-        return {
-            "university_location": slot_value
-        }
-    async def validate_university(
+        if slot_value.lower() == "0":
+            current_slot = "university_location"
+            req_s = await self.required_slots(
+                self.slots_mapped_in_domain(domain), dispatcher, tracker, domain
+            )
+            last_slot = req_s[req_s.index("compatible_graduates")
+            ]
+            return {
+                last_slot: None,
+                current_slot: None
+            }
+        else:
+
+            return {
+             "university_location": slot_value
+            }
+
+    async def validate_majors(
             self,
             slot_value: Any,
             dispatcher: CollectingDispatcher,
@@ -2185,9 +2187,46 @@ class ValidateQualificationMajorForm(FormValidationAction):
     ) -> Dict[Text, Any]:
         slot_value = convert_number(slot_value)
 
-        return {
-            "university": slot_value
-        }
+        if slot_value.lower() == "0":
+            current_slot = "majors"
+            req_s = await self.required_slots(
+                self.slots_mapped_in_domain(domain), dispatcher, tracker, domain
+            )
+            last_slot = req_s[req_s.index("university_location")
+            ]
+            return {
+                last_slot: None,
+                current_slot: None
+            }
+        else:
+            return {
+             "majors": slot_value
+         }
+
+    async def validate_university(
+            self,
+            slot_value: Any,
+            dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        slot_value = convert_number(slot_value)
+        if slot_value.lower() == "0":
+            current_slot = "university"
+            req_s = await self.required_slots(
+                self.slots_mapped_in_domain(domain), dispatcher, tracker, domain
+            )
+            last_slot = req_s[req_s.index("majors")
+            ]
+            return {
+                last_slot: None,
+                current_slot: None
+            }
+        else:
+            return {
+                "university": slot_value
+            }
+
     async def validate_subspeciality(
             self,
             slot_value: Any,
@@ -2208,7 +2247,8 @@ class AskForSelectcomaptibleGraduatesaction(Action):
             self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
       
-        dispatcher.utter_message(text="""
+        dispatcher.utter_message(text="""الرجاء الاختيار من الخيارات أدناه
+
 1. تخصصات الخرجين المتوافقة مع التخصص المطلوب للتأهيل التربوي  
 2. تخصصات الخرجين الغير متوافقة مع التخصص المطلوب للتأهيل التربوي  
 """
@@ -2224,14 +2264,24 @@ class AskForSelectmajorsaction(Action):
     ) -> List[EventType]:
       
         majors = []
-        if tracker.get_slot("compatible_graduates") == "1":
+        if tracker.get_slot("compatible_graduates") == "1" and tracker.get_slot("university_location") == "1":
             for major in agree_inside.agree_inside:
                 if major["major_type"] == "Inside Oman":
                     majors.append((str(major["major_option"]), major["major_name"]))
         
-        elif tracker.get_slot("compatible_graduates") == "2":
+        elif tracker.get_slot("compatible_graduates") == "2" and  tracker.get_slot("university_location") == "1":
             for major in nonagree_inside.nonagree_inside:
                 if major["major_type"] == "Inside Oman":
+                    majors.append((str(major["major_option"]), major["major_name"]))
+        
+        elif tracker.get_slot("compatible_graduates") == "1" and  tracker.get_slot("university_location") == "2":
+            for major in agree_outside.agree_outside:
+                if major["major_type"] == "Outside Oman":
+                    majors.append((str(major["major_option"]), major["major_name"]))
+
+        elif tracker.get_slot("compatible_graduates") == "2" and  tracker.get_slot("university_location") == "2":
+            for major in nonagree_outside.nonagree_outside:
+                if major["major_type"] == "Outside Oman":
                     majors.append((str(major["major_option"]), major["major_name"]))
 
         print("majors list", majors)
@@ -2239,7 +2289,12 @@ class AskForSelectmajorsaction(Action):
         options_list = ""
         for col in majors:
             options_list += "{}. {}\n".format(col[0], col[1])
-        dispatcher.utter_message(text=f"الرجاء الاختيار من الكليات أدناه: \n"
+        if tracker.get_slot("compatible_graduates") == "1":
+            dispatcher.utter_message(text=f"للتعرف على تخصصات الخريجين من حملة مؤهل البكالوريوس المتوافقة مع التخصصات المطروحة لدبلوم التأهيل التربوي،إختر  تخصص التأهيل التربوي المطلوب: \n"
+                                        f"{options_list} \n"
+                                        f"اكتب '0' للعودة إلى الخيار الثمين واكتب 'خروج' للخروج من المحادثة")
+        elif tracker.get_slot("compatible_graduates") == "2":
+            dispatcher.utter_message(text=f"للتعرف على تخصصات الخريجين من حملة مؤهل البكالوريوس غير المتوافقة مع التخصصات المطروحة لدبلوم التأهيل التربوي لعدم إستيفائهم لعدد الساعات المطلوبة المعتمدة لشغل الوظفية. إختر تخصص التأهيل التربوي المطلوب: \n"
                                         f"{options_list} \n"
                                         f"اكتب '0' للعودة إلى الخيار الثمين واكتب 'خروج' للخروج من المحادثة")
         return []
@@ -2252,9 +2307,10 @@ class AskForSelectUniverLocationaction(Action):
             self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
       
-        dispatcher.utter_message(text="""
+        dispatcher.utter_message(text="""الرجاء الاختيار من الخيارات أدناه
 1. داخل عمان                                     
 2. خارج عمان
+اكتب '0' للعودة إلى الخيار الثمين واكتب 'خروج' للخروج من المحادثة
 """
         )
         return []
@@ -2276,7 +2332,7 @@ class AskForSelectUniversity(Action):
         elif tracker.get_slot("university_location") == "1" and tracker.get_slot("compatible_graduates") == "2":
             univ_type = "Inside Oman"
             major_data1 = nonagree_inside.nonagree_inside
-        elif tracker.get_slot("university_location") == "2" and tracker.get_slot("compatible_graduates") == "1":
+        elif tracker.get_slot("university_location") == "2" and tracker.get_slot("compatible_graduates") == "2":
             univ_type = "Outside Oman"
             major_data1 = nonagree_outside.nonagree_outside
         else:
@@ -2303,7 +2359,7 @@ class AskForSelectUniversity(Action):
         options_list = ""
         for strm in universities:
             options_list += "{}. {}\n".format(strm[0], strm[1])
-        dispatcher.utter_message(text=f"يرجى الاختيار من بين التدفقات المتاحة أدناه: \n"
+        dispatcher.utter_message(text=f"إختر المؤسسة التعليمية المتخرج منها لمؤهل البكالوريوس: \n"
                                       f"{options_list} \n"
                                       f"اكتب '0' للعودة إلى الخيار الثمين واكتب 'خروج' للخروج من المحادثة")
         return []
@@ -2325,7 +2381,7 @@ class AskForSelectsubspeciality(Action):
         elif tracker.get_slot("university_location") == "1" and tracker.get_slot("compatible_graduates") == "2":
             univ_type = "Inside Oman"
             major_data1 = nonagree_inside.nonagree_inside
-        elif tracker.get_slot("university_location") == "2" and tracker.get_slot("compatible_graduates") == "1":
+        elif tracker.get_slot("university_location") == "2" and tracker.get_slot("compatible_graduates") == "2":
             univ_type = "Outside Oman"
             major_data1 = nonagree_outside.nonagree_outside
         else:
@@ -2367,9 +2423,13 @@ class AskForSelectsubspeciality(Action):
         #                               f"{options_list} \n"
         #                               f"اكتب '0' للعودة إلى الخيار الثمين واكتب 'خروج' للخروج من المحادثة")
             options_list += "{}\n".format(prg[1])
-            dispatcher.utter_message(text=f"{options_list} \n"
-                                      f"اكتب '0' للعودة إلى الخيار الثمين واكتب 'خروج' للخروج من المحادثة")
-        return []
+        dispatcher.utter_message(text=f"{options_list} \n"
+                                      f"اكتب '1' للعودة إلى القائمة الرئيسية ، أو اكتب 'خروج' للخروج من المحادثة")
+        return [
+                AllSlotsReset(), Restarted(),
+                SlotSet(key="subspeciality", value=None),
+                SlotSet(key="major_menu", value=None)
+            ]
 
 class ActionDefaultFallback(Action):
     def name(self) -> Text:
@@ -2398,7 +2458,7 @@ class ActionDefaultFallback(Action):
             )
 
             return [UserUtteranceReverted()]
-#            return [AllSlotsReset(), FollowupAction('humanhandoff_yesno_form')]
+            # return [AllSlotsReset(), FollowupAction('humanhandoff_yesno_form')]
         else:
             dispatcher.utter_message(
                 response="utter_unidentified_input"

@@ -775,95 +775,8 @@ agree_outside = [
     },
     {
         "major_type": "Outside Oman",
-        "major_name": " تربية خاصة",
-        "major_option": 9,
-        "university_available": [
-            {
-                "university_name": "الجامعة الأردنية",
-                "university_option": 1,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "تربية خاصه",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "جامعة أربد الأهلية",
-                "university_option": 2,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "تربية خاصه",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "جامعة الامارات العربية المتحدة",
-                "university_option": 3,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "تربية خاصه (مسار الاعاقات البسيطة والمتوسطة)",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "جامعة البلقاء التطبيقية",
-                "university_option": 4,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "تربية خاصه",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "جامعة الشرق الأوسط",
-                "university_option": 5,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "تربية خاصه",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "جامعة جادارا",
-                "university_option": 6,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "تربية خاصه",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "جامعة عمان العربية",
-                "university_option": 7,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "تربية خاصه",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "جامعة مؤته",
-                "university_option": 8,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "تربية خاصه",
-                        "subspeciality_option": 1
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "major_type": "Outside Oman",
         "major_name": " تقنية المعلومات",
-        "major_option": 10,
+        "major_option": 9,
         "university_available": [
             {
                 "university_name": "Swinburne University of Technology",
@@ -938,7 +851,7 @@ agree_outside = [
     {
         "major_type": "Outside Oman",
         "major_name": " رياضة مدرسية",
-        "major_option": 11,
+        "major_option": 10,
         "university_available": [
             {
                 "university_name": "جامعة اليرموك",
@@ -1002,111 +915,11 @@ agree_outside = [
             }
         ]
     },
-    {
-        "major_type": "Outside Oman",
-        "major_name": " مجال أول",
-        "major_option": 12,
-        "university_available": [
-            {
-                "university_name": "جامعة أبوظبي",
-                "university_option": 1,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "معلم صف",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "جامعة العين",
-                "university_option": 2,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "اعداد معلم في الدراسات الاسلامية والعربية",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "جامعة جرش",
-                "university_option": 3,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "معلم صف",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "جامعة عجمان للعلوم والتكنولوجيا",
-                "university_option": 4,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "اعداد معلم في الدراسات الاسلامية والعربية",
-                        "subspeciality_option": 1
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "major_type": "Outside Oman",
-        "major_name": " مجال ثاني",
-        "major_option": 13,
-        "university_available": [
-            {
-                "university_name": "جامعة الامارات العربية المتحدة",
-                "university_option": 1,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "التربية الابتدائية/ الرياضيات",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "جامعة العين",
-                "university_option": 2,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "اعداد معلم في الرياضيات والعلوم",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "جامعة عجمان للعلوم والتكنولوجيا",
-                "university_option": 3,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "اعداد معلم في الرياضيات والعلوم",
-                        "subspeciality_option": 1
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "major_type": "Outside Oman",
-        "major_name": " مهارات حياتية",
-        "major_option": 14,
-        "university_available": [
-            {
-                "university_name": "الهيئة العامة للتعليم التطبيقي والتدريب",
-                "university_option": 1,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "اقتصاد منزلي",
-                        "subspeciality_option": 1
-                    }
-                ]
-            }
-        ]
-    },
+    
     {
         "major_type": "Outside Oman",
         "major_name": " مهارات موسيقية",
-        "major_option": 15,
+        "major_option": 11,
         "university_available": [
             {
                 "university_name": "الاكاديمية الاردنية للموسيقى",
@@ -1153,7 +966,7 @@ agree_outside = [
     {
         "major_type": "Outside Oman",
         "major_name": "الفنون تشكيلية",
-        "major_option": 16,
+        "major_option": 12,
         "university_available": [
             {
                 "university_name": "الكلية العلمية للتصميم",
@@ -1252,7 +1065,7 @@ agree_outside = [
     {
         "major_type": "Outside Oman",
         "major_name": "الكيمياء",
-        "major_option": 17,
+        "major_option": 13,
         "university_available": [
             {
                 "university_name": "Bharti Vidyapeeth Deemed University",
