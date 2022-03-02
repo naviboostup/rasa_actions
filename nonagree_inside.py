@@ -5,7 +5,7 @@ nonagree_inside = [
         "major_option": 1,
         "university_available": [
             {
-                "university_name": "الكلية التقنية العليا",
+                "university_name": "جامعة التقنية والعلوم التطبيقية",
                 "university_option": 1,
                 "subspeciality_detail": [
                     {
@@ -25,10 +25,6 @@ nonagree_inside = [
                     {
                         "subspeciality": "ادارة الصحة والسلامة",
                         "subspeciality_option": 1
-                    },
-                    {
-                        "subspeciality": "إدارة الصحة والسلامة",
-                        "subspeciality_option": 2
                     }
                 ]
             },
@@ -132,7 +128,7 @@ nonagree_inside = [
         "major_option": 2,
         "university_available": [
             {
-                "university_name": "الكلية التقنية العليا",
+                "university_name": "جامعة التقنية والعلوم التطبيقية",
                 "university_option": 1,
                 "subspeciality_detail": [
                     {
@@ -174,6 +170,26 @@ nonagree_inside = [
                     {
                         "subspeciality": "إدارة الموارد البشرية",
                         "subspeciality_option": 10
+                    },
+                    {
+                        "subspeciality": "مسح كميات",
+                        "subspeciality_option": 11
+                    },
+                    {
+                        "subspeciality": "الهندسة الميكانيكية",
+                        "subspeciality_option": 12
+                    },
+                    {
+                        "subspeciality": "ادارة الاعمال الدولية",
+                        "subspeciality_option": 13
+                    },
+                    {
+                        "subspeciality": "المحاسبة",
+                        "subspeciality_option": 14
+                    },
+                    {
+                        "subspeciality": "ادارة البيانات",
+                        "subspeciality_option": 15
                     }
                 ]
             },
@@ -310,18 +326,8 @@ nonagree_inside = [
                 ]
             },
             {
-                "university_name": "كلية التقنية العليا",
-                "university_option": 8,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "مسح كميات",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
                 "university_name": "كلية الخليج",
-                "university_option": 9,
+                "university_option": 8,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "المحاسبة",
@@ -331,7 +337,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "كلية الدراسات المصرفية والمالية",
-                "university_option": 10,
+                "university_option": 9,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "المحاسبة",
@@ -341,7 +347,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "كلية الزهراء للبنات",
-                "university_option": 11,
+                "university_option": 10,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "العلوم المالية والمصرفية",
@@ -355,7 +361,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "كلية الشرق الاوسط",
-                "university_option": 12,
+                "university_option": 11,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "ادارة الاعمال ونظم المعلومات (المحاسبة والمالية)",
@@ -380,30 +386,8 @@ nonagree_inside = [
                 ]
             },
             {
-                "university_name": "كلية العلوم التطبيقية",
-                "university_option": 13,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "الهندسة الميكانيكية",
-                        "subspeciality_option": 1
-                    },
-                    {
-                        "subspeciality": "ادارة الاعمال الدولية",
-                        "subspeciality_option": 2
-                    },
-                    {
-                        "subspeciality": "المحاسبة",
-                        "subspeciality_option": 3
-                    },
-                    {
-                        "subspeciality": "ادارة البيانات",
-                        "subspeciality_option": 4
-                    }
-                ]
-            },
-            {
                 "university_name": "كلية صور الجامعية",
-                "university_option": 14,
+                "university_option": 12,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "إدارة اعمال في العلوم المالية والمصرفية",
@@ -413,7 +397,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "كلية عمان للادارة والتكنولوجيا",
-                "university_option": 15,
+                "university_option": 13,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "المحاسبة ",
@@ -427,7 +411,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "كلية كالدونيان الهندسية",
-                "university_option": 16,
+                "university_option": 14,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "هندسة ميكانيكية",
@@ -441,7 +425,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "كلية مجان",
-                "university_option": 17,
+                "university_option": 15,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "التجارة الالكترونية",
@@ -455,7 +439,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "كلية مزون",
-                "university_option": 18,
+                "university_option": 16,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "ادارة نظم المعلومات",
@@ -469,7 +453,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "كلية مسقط",
-                "university_option": 19,
+                "university_option": 17,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "محاسبة ودراسات الأعمال",
@@ -479,7 +463,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "كلية ولجات للعلوم التطبيقية",
-                "university_option": 20,
+                "university_option": 18,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "ادارة الاعمال",
@@ -505,22 +489,8 @@ nonagree_inside = [
                 ]
             },
             {
-                "university_name": "الكلية التقنية العليا",
-                "university_option": 2,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "هندسة القوى الكهربائية",
-                        "subspeciality_option": 1
-                    },
-                    {
-                        "subspeciality": "الهندسة الكيميائية",
-                        "subspeciality_option": 2
-                    }
-                ]
-            },
-            {
                 "university_name": "جامعة السلطان قابوس",
-                "university_option": 3,
+                "university_option": 2,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "هندسة الكيمياء والمعالجة التحويلية",
@@ -542,7 +512,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "جامعة الشرقية",
-                "university_option": 4,
+                "university_option": 3,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "علوم الغذاء والتغذية الانسانية",
@@ -552,7 +522,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "جامعة صحار",
-                "university_option": 5,
+                "university_option": 4,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "الهندسة الكيميائية",
@@ -562,7 +532,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "جامعة ظفار",
-                "university_option": 6,
+                "university_option": 5,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "الهندسة الكيميائية",
@@ -576,7 +546,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "جامعة نزوى",
-                "university_option": 7,
+                "university_option": 6,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "الهندسة الكيميائية والبتروكيمائية",
@@ -586,7 +556,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "كلية الشرق الاوسط",
-                "university_option": 8,
+                "university_option": 7,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "مسح كميات",
@@ -595,18 +565,26 @@ nonagree_inside = [
                 ]
             },
             {
-                "university_name": "كلية العلوم التطبيقية",
-                "university_option": 9,
+                "university_name": "جامعة التقنية والعلوم التطبيقية",
+                "university_option": 8,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "الهندسة الكيميائية",
                         "subspeciality_option": 1
+                    },
+                    {
+                        "subspeciality": "هندسة القوى الكهربائية",
+                        "subspeciality_option": 2
+                    },
+                    {
+                        "subspeciality": "الهندسة الكيميائية",
+                        "subspeciality_option": 3
                     }
                 ]
             },
             {
                 "university_name": "كلية عمان البحرية الدولية",
-                "university_option": 10,
+                "university_option": 9,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "هندسة العمليات",
@@ -620,7 +598,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "كلية عمان الطبية",
-                "university_option": 11,
+                "university_option": 10,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "صيدلة",
@@ -630,7 +608,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "كلية كالدونيان الهندسية",
-                "university_option": 12,
+                "university_option": 11,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "الهندسة الكيميائية",
@@ -698,26 +676,12 @@ nonagree_inside = [
     },
     {
         "major_type": "Inside Oman",
-        "major_name": " تقنية المعلومات",
+        "major_name": "تقنية المعلومات",
         "major_option": 6,
         "university_available": [
             {
-                "university_name": "الكلية التقنية العليا",
-                "university_option": 1,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "إدارة الأعمال الإلكترونية",
-                        "subspeciality_option": 1
-                    },
-                    {
-                        "subspeciality": "هندسة إلكترونيات واتصالات",
-                        "subspeciality_option": 2
-                    }
-                ]
-            },
-            {
                 "university_name": "جامعة السلطان قابوس",
-                "university_option": 2,
+                "university_option": 1,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "نظم المعلومات (التجارة والاقتصاد)",
@@ -735,7 +699,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "جامعة صحار",
-                "university_option": 3,
+                "university_option": 2,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "هندسة الكهرباء والحاسوب",
@@ -749,7 +713,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "جامعة ظفار",
-                "university_option": 4,
+                "university_option": 3,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "أدارة الأعمال-نظم المعلومات الادارية",
@@ -763,7 +727,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "كلية الشرق الاوسط",
-                "university_option": 5,
+                "university_option": 4,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "ادارة الاعمال ونظم المعلومات",
@@ -772,42 +736,38 @@ nonagree_inside = [
                 ]
             },
             {
-                "university_name": "كلية العلوم التطبيقية",
-                "university_option": 6,
+                "university_name": "جامعة التقنية والعلوم التطبيقية",
+                "university_option": 5,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "الصحافة/ التصميم",
                         "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "كلية العلوم التطبيقية بصور",
-                "university_option": 7,
-                "subspeciality_detail": [
+                    },
+                    {
+                        "subspeciality": "إدارة الأعمال الإلكترونية",
+                        "subspeciality_option": 2
+                    },
+                    {
+                        "subspeciality": "هندسة إلكترونيات واتصالات",
+                        "subspeciality_option": 3
+                    },
                     {
                         "subspeciality": "دراسات الاتصال-الاعلام الرقمي",
-                        "subspeciality_option": 1
+                        "subspeciality_option": 4
                     },
                     {
                         "subspeciality": "دراسات الاتصال-الاتصال الدولي",
-                        "subspeciality_option": 2
-                    }
-                ]
-            },
-            {
-                "university_name": "كلية العلوم التطبيقية بنزوى",
-                "university_option": 8,
-                "subspeciality_detail": [
+                        "subspeciality_option": 5
+                    },
                     {
                         "subspeciality": "دراسات الاتصال-الصحافة",
-                        "subspeciality_option": 1
+                        "subspeciality_option": 6
                     }
                 ]
             },
             {
                 "university_name": "كلية كالدونيان الهندسية",
-                "university_option": 9,
+                "university_option": 6,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "هندسة إتصالات",
@@ -874,7 +834,7 @@ nonagree_inside = [
                 ]
             },
             {
-                "university_name": "كليات العلوم التطبيقية",
+                "university_name": "جامعة التقنية والعلوم التطبيقية",
                 "university_option": 3,
                 "subspeciality_detail": [
                     {
@@ -909,18 +869,8 @@ nonagree_inside = [
                 ]
             },
             {
-                "university_name": "الكلية التقنية العليا",
-                "university_option": 2,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "التصميم المكاني",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
                 "university_name": "الكلية العلمية للتصميم",
-                "university_option": 3,
+                "university_option": 2,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "تصميم ازياء",
@@ -938,7 +888,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "جامعة السلطان قابوس",
-                "university_option": 4,
+                "university_option": 3,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "الفنون المسرحية (التصميم)",
@@ -948,7 +898,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "جامعة ظفار",
-                "university_option": 5,
+                "university_option": 4,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "التصميم الجرافيكي",
@@ -962,7 +912,7 @@ nonagree_inside = [
             },
             {
                 "university_name": "كلية الزهراء للبنات",
-                "university_option": 6,
+                "university_option": 5,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "التصميم الجرافيكي",
@@ -971,8 +921,8 @@ nonagree_inside = [
                 ]
             },
             {
-                "university_name": "كلية العلوم التطبيقية",
-                "university_option": 7,
+                "university_name": "جامعة التقنية والعلوم التطبيقية",
+                "university_option": 6,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "الاتصال الدولي/ التصميم",
@@ -1001,12 +951,16 @@ nonagree_inside = [
                     {
                         "subspeciality": "الاعلام الرقمي/التصميم",
                         "subspeciality_option": 7
+                    },
+                    {
+                        "subspeciality": "التصميم المكاني",
+                        "subspeciality_option": 8
                     }
                 ]
             },
             {
                 "university_name": "كلية عمان للادارة والتكنولوجيا",
-                "university_option": 8,
+                "university_option": 7,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "التصميم الداخلي",
@@ -1022,7 +976,7 @@ nonagree_inside = [
         "major_option": 10,
         "university_available": [
             {
-                "university_name": "الكلية التقنية العليا",
+                "university_name": "جامعة التقنية والعلوم التطبيقية",
                 "university_option": 1,
                 "subspeciality_detail": [
                     {
@@ -1060,6 +1014,10 @@ nonagree_inside = [
                     {
                         "subspeciality": "هندسة المعدات الطبية",
                         "subspeciality_option": 9
+                    },
+                    {
+                        "subspeciality": "الهندسة الكهربائية",
+                        "subspeciality_option": 10
                     }
                 ]
             },
@@ -1152,28 +1110,8 @@ nonagree_inside = [
                 ]
             },
             {
-                "university_name": "كلية العلوم التطبيقية",
-                "university_option": 8,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "الهندسة الكهربائية",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "كلية العلوم التطبيقية بصحار",
-                "university_option": 9,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "الهندسة الميكانيكية",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
                 "university_name": "كلية كالدونيان الهندسية",
-                "university_option": 10,
+                "university_option": 8,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "الهندسة المدنية",

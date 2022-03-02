@@ -5,18 +5,8 @@ agree_inside = [
         "major_option": 1,
         "university_available": [
             {
-                "university_name": "الكلية التقنية العليا",
-                "university_option": 1,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "الاحياء التطبيقية",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
                 "university_name": "جامعة السلطان قابوس",
-                "university_option": 2,
+                "university_option": 1,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "أحياء",
@@ -46,7 +36,7 @@ agree_inside = [
             },
             {
                 "university_name": "جامعة صحار",
-                "university_option": 3,
+                "university_option": 2,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "أحياء",
@@ -56,7 +46,7 @@ agree_inside = [
             },
             {
                 "university_name": "جامعة نزوى",
-                "university_option": 4,
+                "university_option": 3,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "أحياء",
@@ -69,46 +59,38 @@ agree_inside = [
                 ]
             },
             {
-                "university_name": "كلية العلوم التطبيقية",
-                "university_option": 5,
+                "university_name": "جامعة التقنية والعلوم التطبيقية",
+                "university_option": 4,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "التقنية الحيوية البحرية",
                         "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "كلية العلوم التطبيقية  ",
-                "university_option": 6,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "التقنية الحيوية البيئية",
-                        "subspeciality_option": 1
                     },
                     {
-                        "subspeciality": "التقنية الحيوية للغذاء والزراعة",
+                        "subspeciality": "التقنية الحيوية البيئية",
                         "subspeciality_option": 2
                     },
                     {
-                        "subspeciality": "تقنية الزراعة والغذاء",
+                        "subspeciality": "التقنية الحيوية للغذاء والزراعة",
                         "subspeciality_option": 3
-                    }
-                ]
-            },
-            {
-                "university_name": "كلية العلوم التطبيقية بالرستاق",
-                "university_option": 7,
-                "subspeciality_detail": [
+                    },
+                    {
+                        "subspeciality": "تقنية الزراعة والغذاء",
+                        "subspeciality_option": 4
+                    },
                     {
                         "subspeciality": "أحياء",
-                        "subspeciality_option": 1
+                        "subspeciality_option": 5
+                    },
+                    {
+                        "subspeciality": "الاحياء التطبيقية",
+                        "subspeciality_option": 6
                     }
                 ]
             },
             {
                 "university_name": "كلية عمان الطبية",
-                "university_option": 8,
+                "university_option": 5,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "العلوم الصحية",
@@ -118,7 +100,7 @@ agree_inside = [
             },
             {
                 "university_name": "كلية ولجات للعلوم التطبيقية",
-                "university_option": 9,
+                "university_option": 6,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "هندسة التكنولوجيا الحيوية",
@@ -207,19 +189,10 @@ agree_inside = [
         "major_name": " الجغرافيا",
         "major_option": 4,
         "university_available": [
-            {
-                "university_name": "",
-                "university_option": 1,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "أداب- جغرافيا",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
+        
             {
                 "university_name": "جامعة السلطان قابوس",
-                "university_option": 2,
+                "university_option": 1,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "الجغرافيا",
@@ -233,7 +206,7 @@ agree_inside = [
             },
             {
                 "university_name": "كلية العلوم التطبيقية بالرستاق",
-                "university_option": 3,
+                "university_option": 2,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "الجغرافيا",
@@ -263,30 +236,8 @@ agree_inside = [
                 ]
             },
             {
-                "university_name": "الكلية التقنية العليا",
-                "university_option": 2,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "نظم المعلومات- Information System",
-                        "subspeciality_option": 1
-                    },
-                    {
-                        "subspeciality": "قواعد بيانات- Database Specialization",
-                        "subspeciality_option": 2
-                    },
-                    {
-                        "subspeciality": "هندسة البرمجيات- Software Engineering",
-                        "subspeciality_option": 3
-                    },
-                    {
-                        "subspeciality": "هندسة الحاسوب- Computer Engineering",
-                        "subspeciality_option": 4
-                    }
-                ]
-            },
-            {
                 "university_name": "الكلية الحديثة لتجارة والعلوم",
-                "university_option": 3,
+                "university_option": 2,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "نظم المعلومات- Information System",
@@ -295,52 +246,30 @@ agree_inside = [
                     {
                         "subspeciality": "أنظمة المعلومات- Information Systems",
                         "subspeciality_option": 2
-                    }
-                ]
-            },
-            {
-                "university_name": "الكلية الحديثة للتجارة والعلوم",
-                "university_option": 4,
-                "subspeciality_detail": [
+                    },
                     {
                         "subspeciality": "علوم الكمبيوتر- Computer Science",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "جامعة ابوظبي",
-                "university_option": 5,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "تكنولوجيا نظم المعلومات- Information System Technology",
-                        "subspeciality_option": 1
+                        "subspeciality_option": 3
                     }
                 ]
             },
             {
                 "university_name": "جامعة السلطان قابوس",
-                "university_option": 6,
+                "university_option": 3,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "تكنولوجيا التعليم والتعلم- Intructional and Learning Technologies",
                         "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "جامعة السلطان قابوس(كلية العلوم)",
-                "university_option": 7,
-                "subspeciality_detail": [
+                    },
                     {
                         "subspeciality": "الحاسب الالي (كلية العلوم)",
-                        "subspeciality_option": 1
+                        "subspeciality_option": 2
                     }
                 ]
             },
             {
                 "university_name": "جامعة صحار",
-                "university_option": 8,
+                "university_option": 4,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "الشبكات وقواعد البيانات",
@@ -366,7 +295,7 @@ agree_inside = [
             },
             {
                 "university_name": "جامعة ظفار",
-                "university_option": 9,
+                "university_option": 5,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "تقنية المعلومات",
@@ -380,7 +309,7 @@ agree_inside = [
             },
             {
                 "university_name": "جامعة نزوى",
-                "university_option": 10,
+                "university_option": 6,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "علوم الكمبيوتر- Computer Science",
@@ -393,32 +322,30 @@ agree_inside = [
                     {
                         "subspeciality": "تصميم الويب وأمن المعلومات",
                         "subspeciality_option": 3
-                    }
-                ]
-            },
-            {
-                "university_name": "جامعة نزوى ",
-                "university_option": 11,
-                "subspeciality_detail": [
+                    },
                     {
                         "subspeciality": "نظم المعلومات- Information System",
-                        "subspeciality_option": 1
+                        "subspeciality_option": 4
                     }
                 ]
             },
             {
                 "university_name": "كليات ولجات للعلوم التطبيقية",
-                "university_option": 12,
+                "university_option": 7,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "تطبيقات الكمبيوتر- Computer Application",
+                        "subspeciality_option": 1
+                    },
+                    {
+                        "subspeciality": "هندسة علوم كمبيوتر- Engineering in Computer Sciences",
                         "subspeciality_option": 1
                     }
                 ]
             },
             {
                 "university_name": "كلية البريمي",
-                "university_option": 13,
+                "university_option": 8,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "علوم الكمبيوتر- Computer Science",
@@ -432,7 +359,7 @@ agree_inside = [
             },
             {
                 "university_name": "كلية البريمي الجامعية",
-                "university_option": 14,
+                "university_option": 9,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "نظم المعلومات- Information System",
@@ -449,22 +376,8 @@ agree_inside = [
                 ]
             },
             {
-                "university_name": "كلية التقنية العليا",
-                "university_option": 15,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "الشبكات- Networking",
-                        "subspeciality_option": 1
-                    },
-                    {
-                        "subspeciality": "الانترنت والامن الالكتروني",
-                        "subspeciality_option": 2
-                    }
-                ]
-            },
-            {
                 "university_name": "كلية الخليج",
-                "university_option": 16,
+                "university_option": 10,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "نظم المعلومات- Information System",
@@ -490,7 +403,7 @@ agree_inside = [
             },
             {
                 "university_name": "كلية الزهراء للبنات",
-                "university_option": 17,
+                "university_option": 11,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "علوم الكمبيوتر- Computer Science",
@@ -500,31 +413,25 @@ agree_inside = [
             },
             {
                 "university_name": "كلية الشرق الأوسط",
-                "university_option": 18,
+                "university_option": 12,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "علوم الحاسب الألي-Computer Science",
                         "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "كلية الشرق الاوسط",
-                "university_option": 19,
-                "subspeciality_detail": [
+                    },
                     {
                         "subspeciality": "الشبكات اللاسلكية",
-                        "subspeciality_option": 1
+                        "subspeciality_option": 2
                     },
                     {
                         "subspeciality": "تقنية البرمجيات",
-                        "subspeciality_option": 2
+                        "subspeciality_option": 3
                     }
                 ]
             },
             {
-                "university_name": "كلية العلوم التطبيقية",
-                "university_option": 20,
+                "university_name": "جامعة التقنية والعلوم التطبيقية",
+                "university_option": 13,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "شبكات الحاسوب- Computer Networks ",
@@ -561,12 +468,36 @@ agree_inside = [
                     {
                         "subspeciality": "أمن تقنية المعلومات/التصميم-IT-Security/Design",
                         "subspeciality_option": 9
+                    },
+                    {
+                        "subspeciality": "الشبكات- Networking",
+                        "subspeciality_option": 10
+                    },
+                    {
+                        "subspeciality": "الانترنت والامن الالكتروني",
+                        "subspeciality_option": 11
+                    },
+                    {
+                        "subspeciality": "نظم المعلومات- Information System",
+                        "subspeciality_option": 12
+                    },
+                    {
+                        "subspeciality": "قواعد بيانات- Database Specialization",
+                        "subspeciality_option": 13
+                    },
+                    {
+                        "subspeciality": "هندسة البرمجيات- Software Engineering",
+                        "subspeciality_option": 14
+                    },
+                    {
+                        "subspeciality": "هندسة الحاسوب- Computer Engineering",
+                        "subspeciality_option": 15
                     }
                 ]
             },
             {
                 "university_name": "كلية صور الجامعية",
-                "university_option": 21,
+                "university_option": 14,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "نظم المعلومات- Information System",
@@ -588,31 +519,25 @@ agree_inside = [
             },
             {
                 "university_name": "كلية عمان للإدارة والتكنولوجيا",
-                "university_option": 22,
+                "university_option": 15,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "علوم الكمبيوتر- Computer Science",
                         "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "كلية عمان للادارة والتكنولوجيا",
-                "university_option": 23,
-                "subspeciality_detail": [
+                    },
                     {
                         "subspeciality": "نظم المعلومات- Information System",
-                        "subspeciality_option": 1
+                        "subspeciality_option": 2
                     },
                     {
                         "subspeciality": "نظم المعلومات الادارية",
-                        "subspeciality_option": 2
+                        "subspeciality_option": 3
                     }
                 ]
             },
             {
                 "university_name": "كلية كالودونيان الهندسية",
-                "university_option": 24,
+                "university_option": 16,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "هندسة كمبيوتر- Computer Engineering",
@@ -622,7 +547,7 @@ agree_inside = [
             },
             {
                 "university_name": "كلية مجان",
-                "university_option": 25,
+                "university_option": 17,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "الشبكات",
@@ -640,7 +565,7 @@ agree_inside = [
             },
             {
                 "university_name": "كلية مزون",
-                "university_option": 26,
+                "university_option": 18,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "علوم الكمبيوتر- Computer Science",
@@ -658,7 +583,7 @@ agree_inside = [
             },
             {
                 "university_name": "كلية مزون للإدارة والعلوم التطبيقية",
-                "university_option": 27,
+                "university_option": 19,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "ادارة نظم المعلومات",
@@ -668,7 +593,7 @@ agree_inside = [
             },
             {
                 "university_name": "كلية مسقط",
-                "university_option": 28,
+                "university_option": 20,
                 "subspeciality_detail": [
                     {
                         "subspeciality": " الحاسب الألي للأعمال(business Computing)",
@@ -681,16 +606,6 @@ agree_inside = [
                     {
                         "subspeciality": "المحاسبة والعلم الحاسوبي- Accountancy and Computing Science",
                         "subspeciality_option": 3
-                    }
-                ]
-            },
-            {
-                "university_name": "كلية ولجات للعلوم التطبيقية",
-                "university_option": 29,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "هندسة علوم كمبيوتر- Engineering in Computer Sciences",
-                        "subspeciality_option": 1
                     }
                 ]
             }
@@ -868,18 +783,8 @@ agree_inside = [
         "major_option": 10,
         "university_available": [
             {
-                "university_name": "الكلية التقنية العليا",
-                "university_option": 1,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "الكيمياء التطبيقية",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
                 "university_name": "جامعة السلطان قابوس",
-                "university_option": 2,
+                "university_option": 1,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "كيمياء",
@@ -893,6 +798,20 @@ agree_inside = [
             },
             {
                 "university_name": "جامعة نزوى",
+                "university_option": 2,
+                "subspeciality_detail": [
+                    {
+                        "subspeciality": "كيمياء",
+                        "subspeciality_option": 1
+                    },
+                    {
+                        "subspeciality": "كيمياء",
+                        "subspeciality_option": 2
+                    }
+                ]
+            },
+            {
+                "university_name": "كلية العلوم التطبيقية بالرستاق",
                 "university_option": 3,
                 "subspeciality_detail": [
                     {
@@ -901,21 +820,11 @@ agree_inside = [
                     },
                     {
                         "subspeciality": "كيمياء",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
-                "university_name": "كلية العلوم التطبيقية بالرستاق",
-                "university_option": 4,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "كيمياء",
-                        "subspeciality_option": 1
+                        "subspeciality_option": 2
                     },
                     {
-                        "subspeciality": "كيمياء",
-                        "subspeciality_option": 1
+                        "subspeciality": "الكيمياء التطبيقية",
+                        "subspeciality_option": 3
                     }
                 ]
             }
@@ -1092,18 +1001,8 @@ agree_inside = [
                 ]
             },
             {
-                "university_name": "جامعة السلطان قابوس",
-                "university_option": 2,
-                "subspeciality_detail": [
-                    {
-                        "subspeciality": "اللغة العربية",
-                        "subspeciality_option": 1
-                    }
-                ]
-            },
-            {
                 "university_name": "جامعة صحار",
-                "university_option": 3,
+                "university_option": 2,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "اللغة العربية وآدابها",
@@ -1117,7 +1016,7 @@ agree_inside = [
             },
             {
                 "university_name": "جامعة ظفار",
-                "university_option": 4,
+                "university_option": 3,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "اللغة العربية وآدابها",
@@ -1127,7 +1026,7 @@ agree_inside = [
             },
             {
                 "university_name": "جامعة نزوى",
-                "university_option": 5,
+                "university_option": 4,
                 "subspeciality_detail": [
                     {
                         "subspeciality": "اللغة العربية وآدابها",

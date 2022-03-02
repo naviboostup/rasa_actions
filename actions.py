@@ -2247,7 +2247,7 @@ class AskForSelectcomaptibleGraduatesaction(Action):
             self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
       
-        dispatcher.utter_message(text="""الرجاء الاختيار من الخيارات أدناه
+        dispatcher.utter_message(text="""إختر الجهة المتخرج منهل لمؤهل البكالوريوس:
 
 1. تخصصات الخرجين المتوافقة مع التخصص المطلوب للتأهيل التربوي  
 2. تخصصات الخرجين الغير متوافقة مع التخصص المطلوب للتأهيل التربوي  
@@ -2307,7 +2307,7 @@ class AskForSelectUniverLocationaction(Action):
             self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> List[EventType]:
       
-        dispatcher.utter_message(text="""الرجاء الاختيار من الخيارات أدناه
+        dispatcher.utter_message(text="""التخصصات التالية درست من قبل اللجنة المختصة بوزارة التربيةوالتعليم وأقرت بأنها  تخصصات غير متوافقة مع تخصصات دبلوم التأهيل التربوي.
 1. داخل عمان                                     
 2. خارج عمان
 اكتب '0' للعودة إلى الخيار الثمين واكتب 'خروج' للخروج من المحادثة
@@ -2359,7 +2359,7 @@ class AskForSelectUniversity(Action):
         options_list = ""
         for strm in universities:
             options_list += "{}. {}\n".format(strm[0], strm[1])
-        dispatcher.utter_message(text=f"إختر المؤسسة التعليمية المتخرج منها لمؤهل البكالوريوس: \n"
+        dispatcher.utter_message(text=f"في حالة أن الجامعة  المتخرج منها لم تذكر، يمكنك التقدم لبرنامج التأهيل التربوي وسوف يدرس الطلب ويتم الرد عليكم عن طريق الرسائل النصية والبريد الإلكتروني. إختر المؤسسة التعليمية المتخرج منها لمؤهل البكالوريوس: \n"
                                       f"{options_list} \n"
                                       f"اكتب '0' للعودة إلى الخيار الثمين واكتب 'خروج' للخروج من المحادثة")
         return []
