@@ -123,7 +123,7 @@ class ActionSubmitSearchProgramCode(Action):
             response="utter_invalid_code"
         )
 
-        # url = "https://mohe.omantel.om/moheapp/api/student/getCutOff"
+        # url = "http://2.56.215.239:3010/api/student/getCutOff"
         # querystring = {"programCode": code_from_user}
         # payload = ""
         # response = requests.request("GET", url, data=payload, params=querystring)
@@ -180,7 +180,7 @@ class ActionSubmitProgramCutoff(Action):
 #            response="utter_invalid_code"
 #        )
 
-        url = "https://mohe.omantel.om/moheapp/api/student/getCutOff"
+        url = "http://2.56.215.239:3010/api/student/getCutOff"
         querystring = {"programCode": code_from_user}
         payload = ""
         response = requests.request("GET", url, data=payload, params=querystring)
@@ -1853,7 +1853,16 @@ class ActionSubmitMainMenuForm(Action):
     https://youtu.be/JG6NskPaDZk
 
     2:- تقديم طلب اساءة ترتيب الاختيار
-    https://www.youtube.com/watch?v=AKOLmPZJhR4"""
+    https://www.youtube.com/watch?v=AKOLmPZJhR4
+    
+    طريقة التقدم لخدمة التظلمات:-
+    1:- الدخول إلى الموقع الإكتروني لمركز القبول الموحد www.heac.gov.om
+    2:- اختيار خدمات القبول المساندة
+    3:- الضغط على نوع الخدمة المراد التقدم إليها )خدمة التظلمات)
+    4:- إدراج رقم المستخدم والرقم السري.
+    5:- إدراج التظلمات والمرفقات إن وجدت.
+    6:- حفظ التظلم.
+"""
                     )
                 elif opt == "2":
                     dispatcher.utter_message(
@@ -2453,12 +2462,12 @@ class ActionDefaultFallback(Action):
 
         if number_of_fallback == 1:
             senders_maintain["sender"] = 0
-            dispatcher.utter_message(
-                response="utter_default_fallback"
-            )
+            # dispatcher.utter_message(
+            #     response="utter_default_fallback"
+            # )
 
-            return [UserUtteranceReverted()]
-            # return [AllSlotsReset(), FollowupAction('humanhandoff_yesno_form')]
+            # return [UserUtteranceReverted()]
+            return [AllSlotsReset(), FollowupAction('humanhandoff_yesno_form')]
         else:
             dispatcher.utter_message(
                 response="utter_unidentified_input"
@@ -2972,7 +2981,7 @@ class AskForOtp(Action):
             phone_number = tracker.sender_id[3:]
         main_menu_option = tracker.get_slot("main_menu")
 
-        url = "https://mohe.omantel.om/moheapp/api/student/checkAvailability"
+        url = "http://2.56.215.239:3010/api/student/checkAvailability"
 
         if tracker.get_latest_input_channel().lower() == "web":
             querystring = {"civil": civil_number, "mobileNumber": phone_number, "web": "1"}
@@ -3028,7 +3037,7 @@ class ActionSubmitOfferForm(Action):
             phone_number = tracker.sender_id[3:]
         main_menu_option = tracker.get_slot("main_menu")
 
-        url = "https://mohe.omantel.om/moheapp/api/student/checkAvailability/duplicate"
+        url = "http://2.56.215.239:3010/api/student/checkAvailability/duplicate"
 
         if tracker.get_latest_input_channel().lower() == "web":
             querystring = {"civil": civil_number, "mobileNumber": phone_number, "web": "1"}
@@ -3103,7 +3112,7 @@ class ActionSubmitOfferYesNoForm(Action):
         else:
             main_menu_option = tracker.get_slot("main_menu")
         if tracker.get_slot('offer_yesno') == '1':
-            url = "https://mohe.omantel.om/moheapp/api/student/getOffer"
+            url = "http://2.56.215.239:3010/api/student/getOffer"
             querystring = {"civil": civil_number, "type": main_menu_option}
             payload = ""
             response = requests.request("GET", url, data=payload, params=querystring)
@@ -3255,7 +3264,11 @@ class ActionSubmitSchoolMiddlewareForm(Action):
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         if tracker.get_slot("select_country") == "1" or tracker.get_slot("select_school") == "1":
-            return [AllSlotsReset(), Restarted(), FollowupAction("local_school_form")]
+            dispatcher.utter_message(
+            text="""سوف يتم تحديث القائمة للعام الأكاديمي 2023/2022 في وقت لاحق"""
+        )
+            return [AllSlotsReset(), Restarted()]
+            # return [AllSlotsReset(), Restarted(), FollowupAction("local_school_form")]
         else:
             return [AllSlotsReset(), Restarted(), FollowupAction("local_school_form_2")]
 
