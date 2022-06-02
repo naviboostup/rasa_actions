@@ -3,7 +3,13 @@ from pymongo.collation import CollationAlternate
 from pymongo.errors import ConnectionFailure
 import functools
 
-from global_variables import *
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+MAIN_MENU_URL = os.getenv('MAIN_MENU_URL')
+SUBMENU_URL = os.getenv('SUBMENU_URL')
+MONGO_URL = os.getenv('MONGO_URL')
 
 try:
     client = MongoClient(MONGO_URL)
