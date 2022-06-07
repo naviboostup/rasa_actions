@@ -13,10 +13,10 @@ from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.forms import FormValidationAction
 from rasa_sdk.types import DomainDict
 from requests.models import Response
-from .otp_push_pull import push_otp, pull_otp
+from otp_push_pull import push_otp, pull_otp
 import numpy as np
 
-from .db_query_test import (
+from db_query_test import (
     fetch_college_names_inside_sul,
     fetch_streams_by_college,
     fetch_program_codes,
