@@ -4,7 +4,7 @@ from pymongo.errors import ConnectionFailure
 import functools
 
 import os
-from dotenv import load_dotenv
+from .dotenv import load_dotenv
 load_dotenv()
 
 MAIN_MENU_URL = os.getenv('MAIN_MENU_URL')
