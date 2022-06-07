@@ -1,4 +1,4 @@
-import pymongo
+import .pymongo
 
 mongo_uri = "mongodb://localhost:27017/rasacentral"
 
