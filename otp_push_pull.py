@@ -1,10 +1,10 @@
-import .pymongo
+from .pymongo import MongoClient, response
 
 mongo_uri = "mongodb://localhost:27017/rasacentral"
 
 
 def push_otp(phone_number, otp):
-    myclient = pymongo.MongoClient(mongo_uri)
+    myclient = MongoClient(mongo_uri)
     mydb = myclient["rasacentral"]
     mycol = mydb["otp"]
     # mydict = {"phone_number": phone_number, "otp": otp}
@@ -14,7 +14,7 @@ def push_otp(phone_number, otp):
 
 
 def pull_otp(phone_number):
-    myclient = pymongo.MongoClient(mongo_uri)
+    myclient = MongoClient(mongo_uri)
     mydb = myclient["rasacentral"]
     mycol = mydb["otp"]
     get = mycol.find({"phone_number": phone_number}, {"otp": 1})
