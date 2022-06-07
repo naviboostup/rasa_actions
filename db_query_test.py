@@ -1,6 +1,6 @@
-from pymongo import MongoClient, response
-from pymongo.collation import CollationAlternate
-from pymongo.errors import ConnectionFailure
+from .pymongo import MongoClient, response
+from .pymongo.collation import CollationAlternate
+from .pymongo.errors import ConnectionFailure
 import functools
 
 import os
