@@ -1,6 +1,6 @@
 
-from .pymongo import MongoClient
-from .pymongo.errors import ConnectionFailure
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure
 
 try:
     client = MongoClient("mongodb+srv://Admin:admin123@rasadynamic.5iza5.mongodb.net/test")

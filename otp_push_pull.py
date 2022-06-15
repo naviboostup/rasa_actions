@@ -1,4 +1,4 @@
-from .pymongo import MongoClient, response
+from pymongo import MongoClient, response
 
 mongo_uri = "mongodb://localhost:27017/rasacentral"
 
