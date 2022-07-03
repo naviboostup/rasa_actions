@@ -54,6 +54,7 @@ load_dotenv()
 MAIN_MENU_URL = os.getenv('MAIN_MENU_URL')
 SUBMENU_URL = os.getenv('SUBMENU_URL')
 MONGO_URL = os.getenv('MONGO_URL')
+MOHE_URL = os.getenv('MOHE_URL')
 
 senders_maintain = {}
 
@@ -1082,7 +1083,7 @@ class AskForOtp(Action):
         # else:
         #     phone_number = tracker.sender_id[3:]
 
-        url = "http://2.56.215.239:3010/api/student/checkAvailability"
+        url = MOHE_URL+"/api/student/checkAvailability"
 
         # if tracker.get_latest_input_channel().lower() == "web":
         querystring = {"civil": civil_number, "mobileNumber": phone_number, "web": "1"}
@@ -1107,7 +1108,9 @@ class AskForOtp(Action):
                 text=response.json()[
                          'message'] + "\n" + """اكتب ""خروج"" لل"خروج" من المحادثة ، أو اكتب "1" للعودة إلى القائمة الرئيسية"""
             )
-            return [AllSlotsReset(), FollowupAction('humanhandoff_yesno_form')]
+            # return [AllSlotsReset(), FollowupAction('humanhandoff_yesno_form')]
+
+            return []
 
 
 
@@ -1138,7 +1141,7 @@ class ActionOfferYesno(Action):
         #     phone_number = tracker.sender_id[3:]
         # main_menu_option = tracker.get_slot("main_menu")
 
-        url = "http://2.56.215.239:3010/api/student/checkAvailability/duplicate"
+        url = MOHE_URL+"/api/student/checkAvailability/duplicate"
 
         # if tracker.get_latest_input_channel().lower() == "web":
         querystring = {"civil": civil_number, "mobileNumber": phone_number, "web": "1"}
@@ -1183,7 +1186,7 @@ class ActionSubmitOfferYesNoForm(Action):
         elif option == "secondsort":
             option_type = 2
         if tracker.get_slot('offer') == 'yes':
-            url = "http://2.56.215.239:3010/api/student/getOffer"
+            url = MOHE_URL+"/api/student/getOffer"
             querystring = {"civil": civil_number, "type": option_type}
             payload = ""
             response = requests.request("GET", url, data=payload, params=querystring)
@@ -1658,7 +1661,7 @@ class ActionSubmitProgramCutoff(Action):
 #            response="utter_invalid_code"
 #        )
 
-        url = "http://2.56.215.239:3010/api/student/getCutOff"
+        url = MOHE_URL+"/api/student/getCutOff"
         querystring = {"programCode": code_from_user}
         payload = ""
         response = requests.request("GET", url, data=payload, params=querystring)
