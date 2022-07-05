@@ -1,6 +1,6 @@
 from pymongo import MongoClient, response
 
-mongo_uri = "mongodb://localhost:27017/rasacentral"
+mongo_uri = "mongodb://admin:KnMjFHNSnrDsymrJ@10.8.46.185:27017,10.8.46.184:27017,10.8.46.183:27017/rasacentral?authSource=admin&replicaSet=happy"
 
 
 def push_otp(phone_number, otp):
