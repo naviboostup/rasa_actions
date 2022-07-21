@@ -1080,10 +1080,13 @@ class AskForOtp(Action):
         # print(tracker.events[3]['input_channel'])
         # if tracker.events[3]['input_channel'] == "web":
         phone_number = tracker.get_slot("phone_number")
+        option = tracker.get_slot("option")
         # else:
         #     phone_number = tracker.sender_id[3:]
-
-        url = MOHE_URL+"/api/student/checkAvailability"
+        if option == "thirdsort":
+            url = MOHE_URL+"/api/student/checkAvailability2"
+        else:
+            url = MOHE_URL+"/api/student/checkAvailability"
 
         # if tracker.get_latest_input_channel().lower() == "web":
         querystring = {"civil": civil_number, "mobileNumber": phone_number, "web": "1"}
@@ -1140,9 +1143,12 @@ class ActionOfferYesno(Action):
         # else:
         #     phone_number = tracker.sender_id[3:]
         # main_menu_option = tracker.get_slot("main_menu")
+        option = tracker.get_slot("option")
 
-        url = MOHE_URL+"/api/student/checkAvailability/duplicate"
-
+        if option == "thirdsort":
+            url = MOHE_URL+"/api/student/checkAvailability/duplicate2"
+        else:
+            url = MOHE_URL+"/api/student/checkAvailability/duplicate"
         # if tracker.get_latest_input_channel().lower() == "web":
         querystring = {"civil": civil_number, "mobileNumber": phone_number, "web": "1"}
         # else:
@@ -1181,10 +1187,13 @@ class ActionSubmitOfferYesNoForm(Action):
         # phone_number = tracker.sender_id[2:]
 
         option = tracker.get_slot("option")
+        print("option..............",option)
         if option == "firstsort":
             option_type= 1
         elif option == "secondsort":
             option_type = 2
+        elif option == "thirdsort":
+            option_type = 3
         if tracker.get_slot('offer') == 'yes':
             url = MOHE_URL+"/api/student/getOffer"
             querystring = {"civil": civil_number, "type": option_type}
