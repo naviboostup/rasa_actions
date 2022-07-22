@@ -1202,7 +1202,7 @@ class ActionSubmitOfferYesNoForm(Action):
             if not response.json()['success']:
                 new_response=response.json()['message'] + "\n" + """اكتب ""خروج"" لل"خروج" من المحادثة ، أو اكتب "1" للعودة إلى القائمة الرئيسية"""
                 # [AllSlotsReset(), FollowupAction('humanhandoff_yesno_form')]
-                return [AllSlotsReset(), Restarted()]
+                # return [AllSlotsReset(), Restarted()]
             else:
                 new_response='هذه الكلية متاحة في عرضك:\n' + response.json()['message'] + "\n" + """اكتب ""خروج"" لل"خروج" من المحادثة ، أو اكتب "1" للعودة إلى القائمة الرئيسية"""
                 
