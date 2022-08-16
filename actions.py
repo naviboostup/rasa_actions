@@ -1167,10 +1167,10 @@ class ActionOfferYesno(Action):
         else:
             # print("else----", response.json()['ArabicName'])
             buttons = []
-            utterance = "هل ترغب في الحصول على عرض؟"
+            utterance = "اضغط نعم لمشاهدة العرض"
             
             buttons.append({"title": "نعم", "payload": '/choose_option{"offer":"yes"}'})
-            buttons.append({"title": "ليس", "payload": '/choose_option{"offer":"no"}'})
+            buttons.append({"title": "لا", "payload": '/choose_option{"offer":"no"}'})
             buttons.append({"title": "القائمة الرئيسية", "payload": '/main_menu'})
             buttons.append({"title": "خروج", "payload": '/restart'})
             dispatcher.utter_message(text=utterance,buttons=buttons)
